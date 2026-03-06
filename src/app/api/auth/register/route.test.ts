@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { POST } from "./route";
 import { NextRequest } from "next/server";
-import { AuthService } from "@/api/services/auth.service";
-import { ConflictError, AppError } from "@/api/utils/errors";
+import { AuthService } from "@/server/services/auth.service";
+import { ConflictError, AppError } from "@/server/utils/errors";
 
-// Mock the service
-vi.mock("@/api/services/auth.service");
+vi.mock("@/server/services/auth.service");
 
 describe("POST /api/auth/register", () => {
   beforeEach(() => {
@@ -59,7 +58,7 @@ describe("POST /api/auth/register", () => {
 
   it("should return 400 for validation errors (missing fields)", async () => {
     const req = createMockRequest({
-      firstName: "T", // too short
+      firstName: "T",
       businessEmail: "test@example.com",
     });
 

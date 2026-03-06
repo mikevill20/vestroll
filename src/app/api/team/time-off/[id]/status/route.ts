@@ -1,15 +1,15 @@
 import { NextRequest } from "next/server";
-import { ApiResponse } from "@/api/utils/api-response";
+import { ApiResponse } from "@/server/utils/api-response";
 import {
   AppError,
   BadRequestError,
   ForbiddenError,
   ValidationError,
-} from "@/api/utils/errors";
-import { AuthUtils } from "@/api/utils/auth";
-import { hasAdminOrManagerRole } from "@/api/utils/role";
-import { UpdateTimeOffStatusBodySchema } from "@/api/validations/time-off.schema";
-import { TimeOffService } from "@/api/services/time-off.service";
+} from "@/server/utils/errors";
+import { AuthUtils } from "@/server/utils/auth";
+import { hasAdminOrManagerRole } from "@/server/utils/role";
+import { UpdateTimeOffStatusBodySchema } from "@/server/validations/time-off.schema";
+import { TimeOffService } from "@/server/services/time-off.service";
 
 /**
  * @swagger

@@ -1,9 +1,9 @@
 import { NextRequest } from "next/server";
-import { ApiResponse } from "@/api/utils/api-response";
-import { AppError } from "@/api/utils/errors";
-import { AuthUtils } from "@/api/utils/auth";
-import { AuthService } from "@/api/services/auth.service";
-import { ChangePasswordSchema } from "@/api/validations/auth.schema";
+import { ApiResponse } from "@/server/utils/api-response";
+import { AppError } from "@/server/utils/errors";
+import { AuthUtils } from "@/server/utils/auth";
+import { AuthService } from "@/server/services/auth.service";
+import { ChangePasswordSchema } from "@/server/validations/auth.schema";
 import { ZodError } from "zod";
 
 /**

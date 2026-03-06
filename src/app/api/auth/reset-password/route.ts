@@ -1,9 +1,9 @@
 import { NextRequest } from "next/server";
 import { ZodError } from "zod";
-import { ResetPasswordSchema } from "@/api/validations/auth.schema";
-import { PasswordResetService } from "@/api/services/password-reset.service";
-import { ApiResponse } from "@/api/utils/api-response";
-import { AppError } from "@/api/utils/errors";
+import { ResetPasswordSchema } from "@/server/validations/auth.schema";
+import { PasswordResetService } from "@/server/services/password-reset.service";
+import { ApiResponse } from "@/server/utils/api-response";
+import { AppError } from "@/server/utils/errors";
 
 /**
  * @swagger

@@ -1,15 +1,15 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { POST } from "./route";
 import { NextRequest } from "next/server";
-import { GoogleOAuthService } from "@/api/services/google-oauth.service";
-import { OAuthUserProvisioningService } from "@/api/services/oauth-user-provisioning.service";
-import { JWTService } from "@/api/services/jwt.service";
-import { SessionService } from "@/api/services/session.service";
+import { GoogleOAuthService } from "@/server/services/google-oauth.service";
+import { OAuthUserProvisioningService } from "@/server/services/oauth-user-provisioning.service";
+import { JWTService } from "@/server/services/jwt.service";
+import { SessionService } from "@/server/services/session.service";
 
-vi.mock("@/api/services/google-oauth.service");
-vi.mock("@/api/services/oauth-user-provisioning.service");
-vi.mock("@/api/services/jwt.service");
-vi.mock("@/api/services/session.service");
+vi.mock("@/server/services/google-oauth.service");
+vi.mock("@/server/services/oauth-user-provisioning.service");
+vi.mock("@/server/services/jwt.service");
+vi.mock("@/server/services/session.service");
 
 describe("POST /api/auth/google", () => {
   beforeEach(() => {

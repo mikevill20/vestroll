@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AuthUtils } from "@/api/utils/auth";
+import { AuthUtils } from "@/server/utils/auth";
 import { TransactionDetails } from "@/types/finance.types";
 
-// Mock data store for transactions
 const mockTransactions: Record<string, TransactionDetails> = {
   "tx-123": {
     id: "tx-123",
@@ -46,7 +45,7 @@ const mockTransactions: Record<string, TransactionDetails> = {
 
 const getExplorerUrl = (network: string, hash?: string): string => {
   if (!hash) return "";
-  const cleanHash = hash.replace("...", ""); // Basic simulation of full hash for mock
+  const cleanHash = hash.replace("...", "");
   if (network.toLowerCase().includes("ethereum")) {
     return network.toLowerCase().includes("testnet")
       ? `https://sepolia.etherscan.io/tx/${cleanHash}`
@@ -60,11 +59,10 @@ const getExplorerUrl = (network: string, hash?: string): string => {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }, // Promise needed for Next 15+
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    // Optional: Validate authentication (will throw if invalid token)
-    // To support UI testing without auth, we might skip it or handle gracefully
+
     try {
       if (request.headers.get("Authorization")) {
         await AuthUtils.authenticateRequest(request);
@@ -75,7 +73,6 @@ export async function GET(
 
     const { id } = await params;
 
-    // Authorization check - simulate wrong organization
     if (id.startsWith("other-org-")) {
       return NextResponse.json(
         { error: "Not found or unauthorized" },
@@ -92,7 +89,6 @@ export async function GET(
       );
     }
 
-    // Dynamically generate the correct external blockchain explorer link
     if (transaction.blockchainInfo && transaction.blockchainInfo.hash) {
       transaction.blockchainInfo.explorerUrl = getExplorerUrl(
         transaction.blockchainInfo.network,

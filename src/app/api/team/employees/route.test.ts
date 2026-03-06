@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { GET } from "./route";
 import { NextRequest } from "next/server";
-import { EmployeeService } from "@/api/services/employee.service";
-import { AuthUtils } from "@/api/utils/auth";
-import { UnauthorizedError, ForbiddenError } from "@/api/utils/errors";
+import { EmployeeService } from "@/server/services/employee.service";
+import { AuthUtils } from "@/server/utils/auth";
+import { UnauthorizedError, ForbiddenError } from "@/server/utils/errors";
 
-vi.mock("@/api/services/employee.service");
-vi.mock("@/api/utils/auth");
+vi.mock("@/server/services/employee.service");
+vi.mock("@/server/utils/auth");
 
 describe("GET /api/team/employees", () => {
   beforeEach(() => {

@@ -1,15 +1,15 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { POST } from "./route";
 import { NextRequest } from "next/server";
-import { AppleOAuthService } from "@/api/services/apple-oauth.service";
-import { OAuthUserProvisioningService } from "@/api/services/oauth-user-provisioning.service";
-import { JWTService } from "@/api/services/jwt.service";
-import { SessionService } from "@/api/services/session.service";
+import { AppleOAuthService } from "@/server/services/apple-oauth.service";
+import { OAuthUserProvisioningService } from "@/server/services/oauth-user-provisioning.service";
+import { JWTService } from "@/server/services/jwt.service";
+import { SessionService } from "@/server/services/session.service";
 
-vi.mock("@/api/services/apple-oauth.service");
-vi.mock("@/api/services/oauth-user-provisioning.service");
-vi.mock("@/api/services/jwt.service");
-vi.mock("@/api/services/session.service");
+vi.mock("@/server/services/apple-oauth.service");
+vi.mock("@/server/services/oauth-user-provisioning.service");
+vi.mock("@/server/services/jwt.service");
+vi.mock("@/server/services/session.service");
 
 describe("POST /api/auth/apple", () => {
   beforeEach(() => {
@@ -59,7 +59,7 @@ describe("POST /api/auth/apple", () => {
     const data = await response.json();
     expect(data.success).toBe(true);
     expect(data.data.accessToken).toBe("access-token");
-    // Verify user info merging
+
     expect(OAuthUserProvisioningService.provisionUser).toHaveBeenCalledWith(
       expect.objectContaining({ firstName: "First", lastName: "Last" }),
       "apple",
@@ -67,7 +67,7 @@ describe("POST /api/auth/apple", () => {
   });
 
   it("should return 400 for validation failure", async () => {
-    const req = createMockRequest({}); // Missing idToken
+    const req = createMockRequest({});
     const response = await POST(req);
     expect(response.status).toBe(400);
   });

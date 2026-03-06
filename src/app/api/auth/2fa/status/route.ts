@@ -1,8 +1,8 @@
 import { NextRequest } from "next/server";
-import { ApiResponse } from "@/api/utils/api-response";
-import { AppError } from "@/api/utils/errors";
-import { AuthUtils } from "@/api/utils/auth";
-import { TwoFactorService } from "@/api/services/two-factor.service";
+import { ApiResponse } from "@/server/utils/api-response";
+import { AppError } from "@/server/utils/errors";
+import { AuthUtils } from "@/server/utils/auth";
+import { TwoFactorService } from "@/server/services/two-factor.service";
 
 /**
  * @swagger
@@ -30,13 +30,11 @@ import { TwoFactorService } from "@/api/services/two-factor.service";
  */
 export async function GET(req: NextRequest) {
   try {
-    // 1. Authenticate request
+
     const { userId } = await AuthUtils.authenticateRequest(req);
 
-    // 2. Get 2FA status
     const status = await TwoFactorService.getStatus(userId);
 
-    // 3. Return status
     return ApiResponse.success(
       {
         enabled: status.enabled,
@@ -46,12 +44,11 @@ export async function GET(req: NextRequest) {
       200,
     );
   } catch (error) {
-    // Handle app errors
+
     if (error instanceof AppError) {
       return ApiResponse.error(error.message, error.statusCode, error.errors);
     }
 
-    // Log internal error for debugging
     console.error("[2FA Status Error]", error);
 
     return ApiResponse.error("Internal server error", 500);

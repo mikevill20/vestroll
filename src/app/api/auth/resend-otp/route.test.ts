@@ -1,15 +1,14 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { POST } from "./route";
 import { NextRequest } from "next/server";
-import { OTPResendService } from "@/api/services/otp-resend.service";
+import { OTPResendService } from "@/server/services/otp-resend.service";
 import {
   NotFoundError,
   BadRequestError,
   TooManyRequestsError,
-} from "@/api/utils/errors";
+} from "@/server/utils/errors";
 
-// Mock the service
-vi.mock("@/api/services/otp-resend.service");
+vi.mock("@/server/services/otp-resend.service");
 
 describe("POST /api/auth/resend-otp", () => {
   beforeEach(() => {
@@ -118,7 +117,7 @@ describe("POST /api/auth/resend-otp", () => {
   });
 
   it("should return 429 with retry-after header when rate limit exceeded", async () => {
-    const retryAfter = 180; // 3 minutes
+    const retryAfter = 180;
     vi.mocked(OTPResendService.resendOTP).mockRejectedValue(
       new TooManyRequestsError(
         "Too many OTP requests. Please try again later.",
@@ -137,7 +136,6 @@ describe("POST /api/auth/resend-otp", () => {
     expect(data.errors).toBeDefined();
     expect(data.errors.retryAfter).toBe(retryAfter);
 
-    // Check Retry-After header
     const retryAfterHeader = response.headers.get("Retry-After");
     expect(retryAfterHeader).toBe(retryAfter.toString());
   });

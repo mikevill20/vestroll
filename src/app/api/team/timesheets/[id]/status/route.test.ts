@@ -1,17 +1,17 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { PATCH } from "./route";
 import { NextRequest } from "next/server";
-import { TimesheetService } from "@/api/services/timesheet.service";
-import { AuthUtils } from "@/api/utils/auth";
+import { TimesheetService } from "@/server/services/timesheet.service";
+import { AuthUtils } from "@/server/utils/auth";
 import {
   UnauthorizedError,
   ForbiddenError,
   NotFoundError,
   BadRequestError,
-} from "@/api/utils/errors";
+} from "@/server/utils/errors";
 
-vi.mock("@/api/services/timesheet.service");
-vi.mock("@/api/utils/auth");
+vi.mock("@/server/services/timesheet.service");
+vi.mock("@/server/utils/auth");
 
 describe("PATCH /api/team/timesheets/:id/status", () => {
   const TIMESHEET_ID = "550e8400-e29b-41d4-a716-446655440000";

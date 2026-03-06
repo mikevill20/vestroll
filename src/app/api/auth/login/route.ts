@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AuthService } from "@/api/services/auth.service";
-import { LoginSchema } from "@/api/validations/login.schema";
-import { ApiResponse } from "@/api/utils/api-response";
-import { AuthUtils } from "@/api/utils/auth";
-import { AppError, ValidationError } from "@/api/utils/errors";
+import { AuthService } from "@/server/services/auth.service";
+import { LoginSchema } from "@/server/validations/login.schema";
+import { ApiResponse } from "@/server/utils/api-response";
+import { AuthUtils } from "@/server/utils/auth";
+import { AppError, ValidationError } from "@/server/utils/errors";
 
 /**
  * @swagger

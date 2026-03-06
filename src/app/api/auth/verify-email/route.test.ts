@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { POST } from "./route";
 import { NextRequest } from "next/server";
-import { EmailVerificationService } from "@/api/services/email-verification.service";
-import { AppError } from "@/api/utils/errors";
+import { EmailVerificationService } from "@/server/services/email-verification.service";
+import { AppError } from "@/server/utils/errors";
 
-vi.mock("@/api/services/email-verification.service");
+vi.mock("@/server/services/email-verification.service");
 
 describe("POST /api/auth/verify-email", () => {
   beforeEach(() => {
@@ -47,7 +47,7 @@ describe("POST /api/auth/verify-email", () => {
   it("should return 400 for validation failure", async () => {
     const req = createMockRequest({
       email: "invalid-email",
-      otp: "12", // too short
+      otp: "12",
     });
 
     const response = await POST(req);

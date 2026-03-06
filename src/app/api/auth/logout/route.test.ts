@@ -2,15 +2,15 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { POST } from "./route";
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
-import { LogoutService } from "@/api/services/logout.service";
-import { AuthUtils } from "@/api/utils/auth";
+import { LogoutService } from "@/server/services/logout.service";
+import { AuthUtils } from "@/server/utils/auth";
 
 vi.mock("next/headers", () => ({
   cookies: vi.fn(),
 }));
-vi.mock("@/api/services/logout.service");
-vi.mock("@/api/utils/auth");
-vi.mock("@/api/services/logger.service"); // Silent logger
+vi.mock("@/server/services/logout.service");
+vi.mock("@/server/utils/auth");
+vi.mock("@/server/services/logger.service");
 
 describe("POST /api/auth/logout", () => {
   beforeEach(() => {
@@ -39,7 +39,7 @@ describe("POST /api/auth/logout", () => {
       "cookie-rt",
       expect.any(Object),
     );
-    // The route clears the cookie by setting it on the NextResponse object
+
     const setCookieHeader = response.headers.get("set-cookie");
     expect(setCookieHeader).toMatch(/refreshToken/);
   });

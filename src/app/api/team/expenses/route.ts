@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { TeamService } from "@/api/services/team.service";
+import { TeamService } from "@/server/services/team.service";
 import { z } from "zod";
 
 export async function GET(req: NextRequest) {

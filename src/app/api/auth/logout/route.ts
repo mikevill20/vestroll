@@ -1,11 +1,11 @@
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
-import { LogoutService } from "@/api/services/logout.service";
-import { ApiResponse } from "@/api/utils/api-response";
-import { AuthUtils } from "@/api/utils/auth";
-import { AppError } from "@/api/utils/errors";
-import { logoutSchema } from "@/api/validations/auth-logout.schema";
-import { Logger } from "@/api/services/logger.service";
+import { LogoutService } from "@/server/services/logout.service";
+import { ApiResponse } from "@/server/utils/api-response";
+import { AuthUtils } from "@/server/utils/auth";
+import { AppError } from "@/server/utils/errors";
+import { logoutSchema } from "@/server/validations/auth-logout.schema";
+import { Logger } from "@/server/services/logger.service";
 
 /**
  * @swagger
@@ -44,8 +44,7 @@ export async function POST(request: NextRequest) {
         if (validation.success && validation.data.refreshToken) {
           refreshToken = validation.data.refreshToken;
         }
-      } catch {
-        // Ignore body error
+      } catch {
       }
     }
 

@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { DELETE } from "./route";
 import { NextRequest } from "next/server";
-import { AccountDeletionService } from "@/api/services/account-deletion.service";
-import { AuthUtils } from "@/api/utils/auth";
-import { AppError, UnauthorizedError } from "@/api/utils/errors";
+import { AccountDeletionService } from "@/server/services/account-deletion.service";
+import { AuthUtils } from "@/server/utils/auth";
+import { AppError, UnauthorizedError } from "@/server/utils/errors";
 
-vi.mock("@/api/db", () => ({
+vi.mock("@/server/db", () => ({
      db: {
           transaction: vi.fn(),
           delete: vi.fn(),
@@ -16,19 +16,19 @@ vi.mock("next/headers", () => ({
      cookies: vi.fn().mockResolvedValue({}),
 }));
 
-vi.mock("@/api/services/account-deletion.service", () => ({
+vi.mock("@/server/services/account-deletion.service", () => ({
      AccountDeletionService: {
           deleteAccount: vi.fn(),
      },
 }));
 
-vi.mock("@/api/utils/auth", () => ({
+vi.mock("@/server/utils/auth", () => ({
      AuthUtils: {
           authenticateRequest: vi.fn(),
      },
 }));
 
-vi.mock("@/api/services/logger.service", () => ({
+vi.mock("@/server/services/logger.service", () => ({
      Logger: {
           info: vi.fn(),
           error: vi.fn(),

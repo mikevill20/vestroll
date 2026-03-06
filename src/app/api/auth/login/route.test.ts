@@ -1,16 +1,15 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { POST } from "./route";
 import { NextRequest } from "next/server";
-import { AuthService } from "@/api/services/auth.service";
+import { AuthService } from "@/server/services/auth.service";
 import {
   UnauthorizedError,
   ValidationError,
   ForbiddenError,
-} from "@/api/utils/errors";
+} from "@/server/utils/errors";
 
-// Mock the service
-vi.mock("@/api/services/auth.service");
-vi.mock("@/api/utils/auth", () => ({
+vi.mock("@/server/services/auth.service");
+vi.mock("@/server/utils/auth", () => ({
   AuthUtils: {
     getClientIp: vi.fn().mockReturnValue("127.0.0.1"),
     getUserAgent: vi.fn().mockReturnValue("test-agent"),
@@ -56,14 +55,13 @@ describe("POST /api/auth/login", () => {
     expect(data.success).toBe(true);
     expect(data.data).toEqual(mockResult);
 
-    // Check if cookie was set
     expect(response.cookies.get("refreshToken")?.value).toBe("refresh-token");
   });
 
   it("should return 400 for validation errors", async () => {
     const req = createMockRequest({
       email: "invalid-email",
-      // missing password
+
     });
 
     const response = await POST(req);

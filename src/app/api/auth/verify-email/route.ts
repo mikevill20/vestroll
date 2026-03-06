@@ -1,9 +1,9 @@
 import { NextRequest } from "next/server";
 import { ZodError } from "zod";
-import { VerifyEmailSchema } from "@/api/validations/auth.schema";
-import { EmailVerificationService } from "@/api/services/email-verification.service";
-import { ApiResponse } from "@/api/utils/api-response";
-import { AppError } from "@/api/utils/errors";
+import { VerifyEmailSchema } from "@/server/validations/auth.schema";
+import { EmailVerificationService } from "@/server/services/email-verification.service";
+import { ApiResponse } from "@/server/utils/api-response";
+import { AppError } from "@/server/utils/errors";
 
 /**
  * @swagger

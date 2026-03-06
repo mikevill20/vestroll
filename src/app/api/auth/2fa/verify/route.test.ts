@@ -1,16 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { POST } from "./route";
 import { NextRequest } from "next/server";
-import { TwoFactorService } from "@/api/services/two-factor.service";
-import { AuthUtils } from "@/api/utils/auth";
-import { EmailService } from "@/api/services/email.service";
-import { ForbiddenError } from "@/api/utils/errors";
-import { db } from "@/api/db";
+import { TwoFactorService } from "@/server/services/two-factor.service";
+import { AuthUtils } from "@/server/utils/auth";
+import { EmailService } from "@/server/services/email.service";
+import { ForbiddenError } from "@/server/utils/errors";
+import { db } from "@/server/db";
 
-vi.mock("@/api/services/two-factor.service");
-vi.mock("@/api/utils/auth");
-vi.mock("@/api/services/email.service");
-vi.mock("@/api/db", () => ({
+vi.mock("@/server/services/two-factor.service");
+vi.mock("@/server/utils/auth");
+vi.mock("@/server/services/email.service");
+vi.mock("@/server/db", () => ({
   db: {
     select: vi.fn().mockReturnThis(),
     from: vi.fn().mockReturnThis(),

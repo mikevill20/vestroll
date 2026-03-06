@@ -1,9 +1,9 @@
 import { NextRequest } from "next/server";
-import { ApiResponse } from "@/api/utils/api-response";
-import { AppError } from "@/api/utils/errors";
-import { AuthUtils } from "@/api/utils/auth";
-import { TransactionService } from "@/api/services/transaction.service";
-import { ListTransactionsSchema } from "@/api/validations/finance.schema";
+import { ApiResponse } from "@/server/utils/api-response";
+import { AppError } from "@/server/utils/errors";
+import { AuthUtils } from "@/server/utils/auth";
+import { TransactionService } from "@/server/services/transaction.service";
+import { ListTransactionsSchema } from "@/server/validations/finance.schema";
 
 /**
  * @swagger
@@ -100,7 +100,7 @@ import { ListTransactionsSchema } from "@/api/validations/finance.schema";
  */
 export async function GET(req: NextRequest) {
   try {
-    // Authenticate – optional for now to support UI testing without auth
+
     try {
       if (req.headers.get("Authorization")) {
         await AuthUtils.authenticateRequest(req);
@@ -109,7 +109,6 @@ export async function GET(req: NextRequest) {
       return ApiResponse.error("Unauthorized", 401);
     }
 
-    // Parse and validate query parameters
     const { searchParams } = new URL(req.url);
     const rawParams = {
       page: searchParams.get("page") ?? undefined,

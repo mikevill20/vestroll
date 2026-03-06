@@ -2,15 +2,15 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { POST } from "./route";
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
-import { TokenRefreshService } from "@/api/services/token-refresh.service";
-import { AuthUtils } from "@/api/utils/auth";
-import { AppError } from "@/api/utils/errors";
+import { TokenRefreshService } from "@/server/services/token-refresh.service";
+import { AuthUtils } from "@/server/utils/auth";
+import { AppError } from "@/server/utils/errors";
 
 vi.mock("next/headers", () => ({
   cookies: vi.fn(),
 }));
-vi.mock("@/api/services/token-refresh.service");
-vi.mock("@/api/utils/auth");
+vi.mock("@/server/services/token-refresh.service");
+vi.mock("@/server/utils/auth");
 
 describe("POST /api/auth/refresh", () => {
   beforeEach(() => {
@@ -39,14 +39,14 @@ describe("POST /api/auth/refresh", () => {
     expect(response.status).toBe(200);
     const data = await response.json();
     expect(data.data.accessToken).toBe("new-at");
-    // Cookie is set on the NextResponse object itself
+
     expect(response.cookies.get("refreshToken")?.value).toBe("new-rt");
   });
 
   it("should return 400 if no refresh token provided", async () => {
     vi.mocked(cookies as any).mockResolvedValue({ get: () => undefined });
 
-    const req = createMockRequest({}); // empty body, no cookie
+    const req = createMockRequest({});
     const response = await POST(req);
 
     expect(response.status).toBe(400);

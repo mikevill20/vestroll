@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { PATCH } from "./route";
-import { AuthUtils } from "@/api/utils/auth";
-import { TimeOffService } from "@/api/services/time-off.service";
+import { AuthUtils } from "@/server/utils/auth";
+import { TimeOffService } from "@/server/services/time-off.service";
 import {
   NotFoundError,
   UnauthorizedError,
-} from "@/api/utils/errors";
+} from "@/server/utils/errors";
 
-vi.mock("@/api/utils/auth");
-vi.mock("@/api/services/time-off.service");
+vi.mock("@/server/utils/auth");
+vi.mock("@/server/services/time-off.service");
 
 describe("PATCH /api/team/time-off/[id]/status", () => {
   beforeEach(() => {

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ApiResponse } from "@/api/utils/api-response";
-import { AppError, ValidationError } from "@/api/utils/errors";
-import { AuthUtils } from "@/api/utils/auth";
-import { EmployeeService } from "@/api/services/employee.service";
-import { GetEmployeesQuerySchema } from "@/api/validations/employee.schema";
-import { TeamService } from "@/api/services/team.service";
+import { ApiResponse } from "@/server/utils/api-response";
+import { AppError, ValidationError } from "@/server/utils/errors";
+import { AuthUtils } from "@/server/utils/auth";
+import { EmployeeService } from "@/server/services/employee.service";
+import { GetEmployeesQuerySchema } from "@/server/validations/employee.schema";
+import { TeamService } from "@/server/services/team.service";
 
 /**
  * @swagger
@@ -97,7 +97,6 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         const { email, organizationId } = body;
 
-        // Basic email validation
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             return NextResponse.json(
                 { message: "Valid email is required" },

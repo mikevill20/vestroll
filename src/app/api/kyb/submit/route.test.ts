@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { POST } from "./route";
 import { NextRequest } from "next/server";
-import { KybService } from "@/api/services/kyb.service";
-import { AuthUtils } from "@/api/utils/auth";
-import { ConflictError, UnauthorizedError } from "@/api/utils/errors";
+import { KybService } from "@/server/services/kyb.service";
+import { AuthUtils } from "@/server/utils/auth";
+import { ConflictError, UnauthorizedError } from "@/server/utils/errors";
 
-vi.mock("@/api/services/kyb.service");
-vi.mock("@/api/utils/auth");
+vi.mock("@/server/services/kyb.service");
+vi.mock("@/server/utils/auth");
 
 describe("POST /api/kyb/submit", () => {
   beforeEach(() => {
@@ -205,7 +205,7 @@ describe("POST /api/kyb/submit", () => {
     const data = await response.json();
     expect(data.success).toBe(false);
     expect(data.message).toBe("A KYB verification is already pending review");
-    // Should clean up uploaded files since submit threw after upload
+
     expect(KybService.deleteFromCloudinary).toHaveBeenCalled();
   });
 

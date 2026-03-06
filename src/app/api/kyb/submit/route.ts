@@ -1,9 +1,9 @@
 import { NextRequest } from "next/server";
-import { ApiResponse } from "@/api/utils/api-response";
-import { AppError, ValidationError } from "@/api/utils/errors";
-import { AuthUtils } from "@/api/utils/auth";
-import { KybSubmitSchema, KYB_FILE_CONSTRAINTS } from "@/api/validations/kyb.schema";
-import { KybService } from "@/api/services/kyb.service";
+import { ApiResponse } from "@/server/utils/api-response";
+import { AppError, ValidationError } from "@/server/utils/errors";
+import { AuthUtils } from "@/server/utils/auth";
+import { KybSubmitSchema, KYB_FILE_CONSTRAINTS } from "@/server/validations/kyb.schema";
+import { KybService } from "@/server/services/kyb.service";
 import { ZodError } from "zod";
 
 /**
@@ -54,13 +54,11 @@ export async function POST(req: NextRequest) {
   const uploadedPublicIds: string[] = [];
 
   try {
-    // 1. Authenticate
+
     const { userId } = await AuthUtils.authenticateRequest(req);
 
-    // 2. Parse multipart form data
     const formData = await req.formData();
 
-    // 3. Validate text fields
     const registrationType = formData.get("registrationType") as string | null;
     const registrationNo = formData.get("registrationNo") as string | null;
 
@@ -69,7 +67,6 @@ export async function POST(req: NextRequest) {
       registrationNo,
     });
 
-    // 4. Extract and validate files
     const incorporationCertificate = formData.get("incorporationCertificate");
     const memorandumArticle = formData.get("memorandumArticle");
     const formC02C07 = formData.get("formC02C07");
@@ -114,7 +111,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 5. Upload files to Cloudinary
     const incCert = await KybService.uploadToCloudinary(
       incorporationCertificate,
       userId,
@@ -139,7 +135,6 @@ export async function POST(req: NextRequest) {
       uploadedPublicIds.push(formC02C07Result.publicId);
     }
 
-    // 6. Create DB record
     const result = await KybService.submit({
       userId,
       registrationType: validatedFields.registrationType,
@@ -154,7 +149,7 @@ export async function POST(req: NextRequest) {
 
     return ApiResponse.success(result, "KYB documents submitted successfully", 201);
   } catch (error) {
-    // Clean up uploaded Cloudinary files on any error after upload
+
     if (uploadedPublicIds.length > 0) {
       await KybService.deleteFromCloudinary(uploadedPublicIds);
     }

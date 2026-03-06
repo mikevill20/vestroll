@@ -1,15 +1,15 @@
 import { NextRequest } from "next/server";
-import { ApiResponse } from "@/api/utils/api-response";
-import { ExpenseStatusService } from "@/api/services/expense-status.service";
-import { JWTTokenService } from "@/api/services/jwt-token.service";
+import { ApiResponse } from "@/server/utils/api-response";
+import { ExpenseStatusService } from "@/server/services/expense-status.service";
+import { JWTTokenService } from "@/server/services/jwt-token.service";
 import {
   AppError,
   BadRequestError,
   ForbiddenError,
   UnauthorizedError,
   ValidationError,
-} from "@/api/utils/errors";
-import { UpdateExpenseStatusSchema } from "@/api/validations/expense-status.schema";
+} from "@/server/utils/errors";
+import { UpdateExpenseStatusSchema } from "@/server/validations/expense-status.schema";
 
 /**
  * @swagger

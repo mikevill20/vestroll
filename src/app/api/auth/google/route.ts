@@ -1,11 +1,11 @@
 import { NextRequest } from "next/server";
-import { GoogleOAuthSchema } from "@/api/validations/auth.schema";
-import { GoogleOAuthService } from "@/api/services/google-oauth.service";
-import { OAuthUserProvisioningService } from "@/api/services/oauth-user-provisioning.service";
-import { JWTService } from "@/api/services/jwt.service";
-import { SessionService } from "@/api/services/session.service";
-import { ApiResponse } from "@/api/utils/api-response";
-import { AppError } from "@/api/utils/errors";
+import { GoogleOAuthSchema } from "@/server/validations/auth.schema";
+import { GoogleOAuthService } from "@/server/services/google-oauth.service";
+import { OAuthUserProvisioningService } from "@/server/services/oauth-user-provisioning.service";
+import { JWTService } from "@/server/services/jwt.service";
+import { SessionService } from "@/server/services/session.service";
+import { ApiResponse } from "@/server/utils/api-response";
+import { AppError } from "@/server/utils/errors";
 import { ZodError } from "zod";
 
 /**

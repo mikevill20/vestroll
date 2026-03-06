@@ -1,8 +1,8 @@
 import { NextRequest } from "next/server";
-import { ApiResponse } from "@/api/utils/api-response";
-import { AppError } from "@/api/utils/errors";
-import { AuthUtils } from "@/api/utils/auth";
-import { TimeOffService } from "@/api/services/time-off.service";
+import { ApiResponse } from "@/server/utils/api-response";
+import { AppError } from "@/server/utils/errors";
+import { AuthUtils } from "@/server/utils/auth";
+import { TimeOffService } from "@/server/services/time-off.service";
 
 /**
  * @swagger

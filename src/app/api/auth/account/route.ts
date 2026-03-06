@@ -1,15 +1,11 @@
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
-import { AuthUtils } from "@/api/utils/auth";
-import { ApiResponse } from "@/api/utils/api-response";
-import { AppError } from "@/api/utils/errors";
-import { Logger } from "@/api/services/logger.service";
-import { AccountDeletionService } from "@/api/services/account-deletion.service";
+import { AuthUtils } from "@/server/utils/auth";
+import { ApiResponse } from "@/server/utils/api-response";
+import { AppError } from "@/server/utils/errors";
+import { Logger } from "@/server/services/logger.service";
+import { AccountDeletionService } from "@/server/services/account-deletion.service";
 
-/**
- * DELETE /api/auth/account
- * Permanently delete authenticated user's account and related data
- */
 export async function DELETE(request: NextRequest) {
      try {
           const cookieStore = await cookies();

@@ -1,17 +1,16 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { POST } from "./route";
 import { NextRequest } from "next/server";
-import { TwoFactorService } from "@/api/services/two-factor.service";
-import { AuthUtils } from "@/api/utils/auth";
+import { TwoFactorService } from "@/server/services/two-factor.service";
+import { AuthUtils } from "@/server/utils/auth";
 import {
   ForbiddenError,
   NotFoundError,
   UnauthorizedError,
-} from "@/api/utils/errors";
+} from "@/server/utils/errors";
 
-// Mock the services
-vi.mock("@/api/services/two-factor.service");
-vi.mock("@/api/utils/auth");
+vi.mock("@/server/services/two-factor.service");
+vi.mock("@/server/utils/auth");
 
 describe("POST /api/auth/2fa/setup", () => {
   beforeEach(() => {

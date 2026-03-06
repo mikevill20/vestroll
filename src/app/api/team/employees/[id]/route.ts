@@ -1,9 +1,9 @@
 import { NextRequest } from "next/server";
-import { db, employees, contracts, timesheets} from "@/api/db";
+import { db, employees, contracts, timesheets} from "@/server/db";
 import { eq, and } from "drizzle-orm";
-import { ApiResponse } from "@/api/utils/api-response";
+import { ApiResponse } from "@/server/utils/api-response";
 import { z } from "zod";
-import { AuthUtils } from "@/api/utils/auth";
+import { AuthUtils } from "@/server/utils/auth";
 
 const UUID_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
 
@@ -56,7 +56,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       return ApiResponse.error("Employee not found", 404);
     }
 
-    // Run contract and timesheet queries in parallel
     const [activeContracts, paymentHistory] = await Promise.all([
       db.select().from(contracts)
         .where(and(eq(contracts.employeeId, id), eq(contracts.status, "active")))
@@ -88,7 +87,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       role: employee.role,
       status: employee.status,
       type: employee.type,
-      // NOTE: dateJoined is mapped to createdAt intentionally, as a workaround for missing field
+
       dateJoined: employee.createdAt,
       paymentDetails,
     };

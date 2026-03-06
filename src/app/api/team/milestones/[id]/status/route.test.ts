@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { PATCH } from "./route";
 import { NextRequest } from "next/server";
-import { TeamService } from "@/api/services/team.service";
-import { AuthUtils } from "@/api/utils/auth";
-import { db } from "@/api/db";
+import { TeamService } from "@/server/services/team.service";
+import { AuthUtils } from "@/server/utils/auth";
+import { db } from "@/server/db";
 
-vi.mock("@/api/services/team.service");
-vi.mock("@/api/utils/auth");
-vi.mock("@/api/db", () => ({
+vi.mock("@/server/services/team.service");
+vi.mock("@/server/utils/auth");
+vi.mock("@/server/db", () => ({
   db: { select: vi.fn() },
   users: {},
 }));
@@ -58,7 +58,7 @@ describe("PATCH /api/team/milestones/:id/status", () => {
     const req = createMockRequest({ status: "Rejected" });
     const res = await PATCH(req, mockParams);
 
-    expect(res.status).toBe(500); // AppError not matched, falls to 500
+    expect(res.status).toBe(500);
   });
 
   it("should return 403 for non-Manager/Admin roles", async () => {

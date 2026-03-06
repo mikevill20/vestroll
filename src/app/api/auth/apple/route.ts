@@ -1,11 +1,11 @@
 import { NextRequest } from "next/server";
-import { AppleOAuthSchema } from "@/api/validations/auth.schema";
-import { AppleOAuthService } from "@/api/services/apple-oauth.service";
-import { OAuthUserProvisioningService } from "@/api/services/oauth-user-provisioning.service";
-import { JWTService } from "@/api/services/jwt.service";
-import { SessionService } from "@/api/services/session.service";
-import { ApiResponse } from "@/api/utils/api-response";
-import { AppError } from "@/api/utils/errors";
+import { AppleOAuthSchema } from "@/server/validations/auth.schema";
+import { AppleOAuthService } from "@/server/services/apple-oauth.service";
+import { OAuthUserProvisioningService } from "@/server/services/oauth-user-provisioning.service";
+import { JWTService } from "@/server/services/jwt.service";
+import { SessionService } from "@/server/services/session.service";
+import { ApiResponse } from "@/server/utils/api-response";
+import { AppError } from "@/server/utils/errors";
 import { ZodError } from "zod";
 
 /**
@@ -56,8 +56,6 @@ export async function POST(req: NextRequest) {
       validatedData.idToken,
     );
 
-    // Apple only provides user data (name and email) on first sign-in.
-    // If provided, we merge it with the verified info.
     if (validatedData.user) {
       if (validatedData.user.name) {
         oauthUserInfo.firstName =
@@ -65,7 +63,7 @@ export async function POST(req: NextRequest) {
         oauthUserInfo.lastName =
           validatedData.user.name.lastName || oauthUserInfo.lastName;
       }
-      // Email should already be in the token, but we can verify/update if needed
+
       if (validatedData.user.email) {
         oauthUserInfo.email = validatedData.user.email;
       }

@@ -20,11 +20,13 @@ function getDatabaseUrl() {
 const databaseUrl = getDatabaseUrl();
 
 if (!databaseUrl) {
-  throw new Error("DATABASE_URL is not set. Add it to .env.local or your shell environment.");
+  throw new Error(
+    "DATABASE_URL is not set. Add it to .env.local or your shell environment.",
+  );
 }
 
 export default defineConfig({
-  schema: "./src/api/db/schema.ts",
+  schema: "./src/server/db/schema.ts",
   out: "./drizzle/migrations",
   dialect: "postgresql",
   dbCredentials: {

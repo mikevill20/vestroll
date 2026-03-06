@@ -1,21 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { PATCH } from "./route";
-import { JWTTokenService } from "@/api/services/jwt-token.service";
-import { ExpenseStatusService } from "@/api/services/expense-status.service";
+import { JWTTokenService } from "@/server/services/jwt-token.service";
+import { ExpenseStatusService } from "@/server/services/expense-status.service";
 import {
   BadRequestError,
   ForbiddenError,
   NotFoundError,
-} from "@/api/utils/errors";
+} from "@/server/utils/errors";
 
-vi.mock("@/api/services/jwt-token.service", () => ({
+vi.mock("@/server/services/jwt-token.service", () => ({
   JWTTokenService: {
     verifyToken: vi.fn(),
   },
 }));
 
-vi.mock("@/api/services/expense-status.service", () => ({
+vi.mock("@/server/services/expense-status.service", () => ({
   ExpenseStatusService: {
     updateExpenseStatus: vi.fn(),
   },

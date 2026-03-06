@@ -1,6 +1,6 @@
-import { db } from "@/api/db";
-import { milestones } from "@/api/db/schema";
-import { ApiResponse } from "@/api/utils/api-response";
+import { db } from "@/server/db";
+import { milestones } from "@/server/db/schema";
+import { ApiResponse } from "@/server/utils/api-response";
 
 /**
  * @swagger

@@ -1,15 +1,15 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { POST } from "./route";
 import { NextRequest } from "next/server";
-import { AuthService } from "@/api/services/auth.service";
-import { AuthUtils } from "@/api/utils/auth";
+import { AuthService } from "@/server/services/auth.service";
+import { AuthUtils } from "@/server/utils/auth";
 import {
   UnauthorizedError,
   BadRequestError,
-} from "@/api/utils/errors";
+} from "@/server/utils/errors";
 
-vi.mock("@/api/services/auth.service");
-vi.mock("@/api/utils/auth");
+vi.mock("@/server/services/auth.service");
+vi.mock("@/server/utils/auth");
 
 describe("POST /api/auth/change-password", () => {
   beforeEach(() => {

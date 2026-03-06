@@ -1,9 +1,9 @@
 import { NextRequest } from "next/server";
-import { ApiResponse } from "@/api/utils/api-response";
-import { AppError } from "@/api/utils/errors";
-import { AuthUtils } from "@/api/utils/auth";
-import { TeamService } from "@/api/services/team.service";
-import { db, users } from "@/api/db";
+import { ApiResponse } from "@/server/utils/api-response";
+import { AppError } from "@/server/utils/errors";
+import { AuthUtils } from "@/server/utils/auth";
+import { TeamService } from "@/server/services/team.service";
+import { db, users } from "@/server/db";
 import { eq } from "drizzle-orm";
 
 export async function PATCH(
@@ -13,7 +13,6 @@ export async function PATCH(
   try {
     const { userId } = await AuthUtils.authenticateRequest(req);
 
-    // Get user role from DB
     const [user] = await db
       .select({ role: users.role })
       .from(users)

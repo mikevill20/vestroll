@@ -1,9 +1,9 @@
 import { NextRequest } from "next/server";
-import { ApiResponse } from "@/api/utils/api-response";
-import { AppError } from "@/api/utils/errors";
-import { AuthUtils } from "@/api/utils/auth";
-import { TwoFactorService } from "@/api/services/two-factor.service";
-import { EmailService } from "@/api/services/email.service";
+import { ApiResponse } from "@/server/utils/api-response";
+import { AppError } from "@/server/utils/errors";
+import { AuthUtils } from "@/server/utils/auth";
+import { TwoFactorService } from "@/server/services/two-factor.service";
+import { EmailService } from "@/server/services/email.service";
 
 /**
  * @swagger
@@ -35,16 +35,14 @@ import { EmailService } from "@/api/services/email.service";
  */
 export async function POST(req: NextRequest) {
   try {
-    // 1. Authenticate request
+
     const { userId, email, user } = await AuthUtils.authenticateRequest(req);
 
-    // 2. Setup 2FA
     const result = await TwoFactorService.setupTwoFactor(userId, email);
 
-    // 3. Return setup data
     return ApiResponse.success(
       {
-        secret: result.secret, // For manual entry if QR code doesn't work
+        secret: result.secret,
         qrCodeUrl: result.qrCodeUrl,
         backupCodes: result.backupCodes,
       },
@@ -52,12 +50,11 @@ export async function POST(req: NextRequest) {
       200,
     );
   } catch (error) {
-    // Handle errors
+
     if (error instanceof AppError) {
       return ApiResponse.error(error.message, error.statusCode, error.errors);
     }
 
-    // Log internal error for debugging
     console.error("[2FA Setup Error]", error);
 
     return ApiResponse.error("Internal server error", 500);
