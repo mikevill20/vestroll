@@ -96,6 +96,7 @@ export const organizations = pgTable("organizations", {
   billingCountry: varchar("billing_country", { length: 255 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  deletedAt: timestamp("deleted_at"),
 });
 
 export const users = pgTable("users", {
