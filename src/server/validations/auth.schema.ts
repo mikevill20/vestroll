@@ -101,10 +101,22 @@ export type ChangePasswordInput = z.infer<typeof ChangePasswordSchema>;
 
 export const PasskeyRegistrationSchema = z
   .object({
-    challenge: base64UrlString("Challenge"),
-    credentialId: base64UrlString("Credential ID"),
-    attestationObject: base64UrlString("Attestation object"),
-    clientDataJSON: base64UrlString("Client data JSON"),
+    challenge: base64UrlString("Challenge").max(
+      1024,
+      "Challenge must be at most 1024 characters",
+    ),
+    credentialId: base64UrlString("Credential ID").max(
+      1024,
+      "Credential ID must be at most 1024 characters",
+    ),
+    attestationObject: base64UrlString("Attestation object").max(
+      20000,
+      "Attestation object must be at most 20000 characters",
+    ),
+    clientDataJSON: base64UrlString("Client data JSON").max(
+      5000,
+      "Client data JSON must be at most 5000 characters",
+    ),
   })
   .strict();
 
