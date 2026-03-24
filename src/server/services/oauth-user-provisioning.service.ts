@@ -1,5 +1,5 @@
 import { db, users } from "../db";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 export interface OAuthUserInfo {
   email: string;
   firstName: string;
@@ -59,7 +59,7 @@ export class OAuthUserProvisioningService {
     const [user] = await db
       .select()
       .from(users)
-      .where(eq(users.email, normalizedEmail))
+      .where(sql`lower(${users.email}) = ${normalizedEmail}`)
       .limit(1);
 
     return user || null;

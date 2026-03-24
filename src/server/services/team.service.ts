@@ -1,5 +1,5 @@
 import { db, users, organizations, milestones } from "../db";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 export class TeamService {
   static async addEmployee(data: { email: string; organizationId?: string }) {
@@ -8,7 +8,7 @@ export class TeamService {
     const [existingUser] = await db
       .select()
       .from(users)
-      .where(eq(users.email, normalizedEmail))
+      .where(sql`lower(${users.email}) = ${normalizedEmail}`)
       .limit(1);
 
     if (existingUser) {
