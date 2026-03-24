@@ -108,6 +108,7 @@ export class OAuthUserProvisioningService {
         oauthId: data.oauthId,
         passwordHash: null,
         status: "active",
+        signerType: "Passkey",
         lastLoginAt: new Date(),
       })
       .returning();

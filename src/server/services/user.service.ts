@@ -1,7 +1,9 @@
-import { db, users, userStatusEnum } from "../db";
+import { db, users, userStatusEnum, signerTypeEnum } from "../db";
 import { eq } from "drizzle-orm";
 
 export type UserStatus = (typeof userStatusEnum.enumValues)[number];
+export type SignerType = (typeof signerTypeEnum.enumValues)[number];
+
 
 export class UserService {
   static async findByEmail(email: string) {

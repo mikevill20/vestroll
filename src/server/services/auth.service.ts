@@ -69,6 +69,7 @@ export class AuthService {
           organizationId: organizationId as any,
           role: accountType === "employer" ? "admin" : "employee",
           status: "pending_verification",
+          signerType: "Email",
         })
         .returning();
 

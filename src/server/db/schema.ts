@@ -76,6 +76,7 @@ export const approvalStatusEnum = pgEnum("approval_status", [
   "rejected",
 ]);
 export const timeOffTypeEnum = pgEnum("time_off_type", ["paid", "unpaid"]);
+export const signerTypeEnum = pgEnum("signer_type", ["Email", "Passkey"]);
 
 export const organizations = pgTable("organizations", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -125,6 +126,7 @@ export const users = pgTable("users", {
 
   oauthProvider: oauthProviderEnum("oauth_provider"),
   oauthId: varchar("oauth_id", { length: 255 }),
+  signerType: signerTypeEnum("signer_type"),
   lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
