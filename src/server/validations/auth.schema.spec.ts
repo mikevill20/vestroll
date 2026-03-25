@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  PasskeyRegistrationSchema,
   RegisterSchema,
   ResendOTPSchema,
   VerifyEmailSchema,
@@ -11,6 +12,8 @@ describe("RegisterSchema", () => {
       firstName: "John",
       lastName: "Doe",
       businessEmail: "john@example.com",
+      password: "Password1",
+      agreement: true,
     };
     const result = RegisterSchema.safeParse(payload);
     expect(result.success).toBe(true);
@@ -196,5 +199,55 @@ describe("VerifyEmailSchema", () => {
     };
     const result = VerifyEmailSchema.safeParse(payload);
     expect(result.success).toBe(false);
+  });
+});
+
+describe("PasskeyRegistrationSchema", () => {
+  const validPayload = {
+    challenge: "YWJjMTIzXy0",
+    credentialId: "Y3JlZGVudGlhbC1pZF8t",
+    attestationObject: "YXR0ZXN0YXRpb25PYmplY3RfLQ",
+    clientDataJSON: "Y2xpZW50RGF0YUpTT05fLQ",
+  };
+
+  it("should validate a correct passkey registration payload", () => {
+    const result = PasskeyRegistrationSchema.safeParse(validPayload);
+    expect(result.success).toBe(true);
+  });
+
+  it("should fail validation when required field is missing", () => {
+    const { challenge: _challenge, ...payloadWithoutChallenge } = validPayload;
+    const result = PasskeyRegistrationSchema.safeParse(payloadWithoutChallenge);
+    expect(result.success).toBe(false);
+  });
+
+  it("should fail validation for invalid base64url field", () => {
+    const payload = {
+      ...validPayload,
+      challenge: "invalid+/=",
+    };
+    const result = PasskeyRegistrationSchema.safeParse(payload);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const issues = result.error.issues;
+      expect(
+        issues.some(
+          (i) => i.message === "Challenge must be a valid base64url string",
+        ),
+      ).toBe(true);
+    }
+  });
+
+  it("should fail validation for unknown extra keys", () => {
+    const payloadWithExtraKey = {
+      ...validPayload,
+      extraField: "should-fail",
+    };
+    const result = PasskeyRegistrationSchema.safeParse(payloadWithExtraKey);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const issues = result.error.issues;
+      expect(issues.some((i) => i.code === "unrecognized_keys")).toBe(true);
+    }
   });
 });

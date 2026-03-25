@@ -21,7 +21,11 @@ export const KybSubmitSchema = z.object({
     .string()
     .min(1, "Registration number is required")
     .max(100, "Registration number is too long")
-    .trim(),
+    .trim()
+    .regex(
+      /^[A-Z0-9][A-Z0-9\-\/]{1,98}[A-Z0-9]$/i,
+      "Registration number must contain only letters, numbers, hyphens, or slashes (e.g. 12345678, AB-123456)"
+    ),
 });
 
 export type KybSubmitInput = z.infer<typeof KybSubmitSchema>;

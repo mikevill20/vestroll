@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
-import { LogoutService } from "@/server/services/logout.service";
+import { AuthService } from "@/server/services/auth.service";
 import { ApiResponse } from "@/server/utils/api-response";
 import { AuthUtils } from "@/server/utils/auth";
 import { AppError } from "@/server/utils/errors";
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
 
     Logger.info("Logout attempt initiated", { ip: ipAddress });
 
-    await LogoutService.logout(refreshToken, { userAgent, ipAddress });
+    await AuthService.logout(refreshToken, { userAgent, ipAddress });
 
     const response = ApiResponse.success({
       message: "Logged out successfully",

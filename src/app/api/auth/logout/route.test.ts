@@ -2,13 +2,13 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { POST } from "./route";
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
-import { LogoutService } from "@/server/services/logout.service";
+import { AuthService } from "@/server/services/auth.service";
 import { AuthUtils } from "@/server/utils/auth";
 
 vi.mock("next/headers", () => ({
   cookies: vi.fn(),
 }));
-vi.mock("@/server/services/logout.service");
+vi.mock("@/server/services/auth.service");
 vi.mock("@/server/utils/auth");
 vi.mock("@/server/services/logger.service");
 
@@ -29,13 +29,13 @@ describe("POST /api/auth/logout", () => {
       get: vi.fn().mockReturnValue({ value: "cookie-rt" }),
     };
     vi.mocked(cookies as any).mockResolvedValue(mockCookieStore);
-    vi.mocked(LogoutService.logout).mockResolvedValue(undefined);
+    vi.mocked(AuthService.logout).mockResolvedValue(undefined);
 
     const req = createMockRequest();
     const response = await POST(req);
 
     expect(response.status).toBe(200);
-    expect(LogoutService.logout).toHaveBeenCalledWith(
+    expect(AuthService.logout).toHaveBeenCalledWith(
       "cookie-rt",
       expect.any(Object),
     );
@@ -50,13 +50,13 @@ describe("POST /api/auth/logout", () => {
       delete: vi.fn(),
     };
     vi.mocked(cookies as any).mockResolvedValue(mockCookieStore);
-    vi.mocked(LogoutService.logout).mockResolvedValue(undefined);
+    vi.mocked(AuthService.logout).mockResolvedValue(undefined);
 
     const req = createMockRequest({ refreshToken: "body-rt" });
     const response = await POST(req);
 
     expect(response.status).toBe(200);
-    expect(LogoutService.logout).toHaveBeenCalledWith(
+    expect(AuthService.logout).toHaveBeenCalledWith(
       "body-rt",
       expect.any(Object),
     );
@@ -67,7 +67,7 @@ describe("POST /api/auth/logout", () => {
       get: () => ({ value: "rt" }),
       delete: vi.fn(),
     });
-    vi.mocked(LogoutService.logout).mockRejectedValue({
+    vi.mocked(AuthService.logout).mockRejectedValue({
       statusCode: 500,
       message: "Fail",
     });

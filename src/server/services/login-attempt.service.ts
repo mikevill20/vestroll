@@ -6,6 +6,8 @@ export class LoginAttemptService {
     email: string;
     ipAddress?: string;
     userAgent?: string;
+    lastLoginIp?: string;
+    lastLoginUa?: string;
     success: boolean;
     failureReason?: string;
   }) {
@@ -13,6 +15,8 @@ export class LoginAttemptService {
       email: data.email,
       ipAddress: data.ipAddress,
       userAgent: data.userAgent,
+      lastLoginIp: data.lastLoginIp,
+      lastLoginUa: data.lastLoginUa,
       success: data.success,
       failureReason: data.failureReason,
     });

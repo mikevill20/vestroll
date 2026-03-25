@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+const base64UrlRegex = /^[A-Za-z0-9_-]+$/;
+
+const base64UrlString = (fieldName: string) =>
+  z
+    .string()
+    .min(1, `${fieldName} is required`)
+    .regex(base64UrlRegex, `${fieldName} must be a valid base64url string`);
+
 export const RegisterSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
@@ -90,3 +98,28 @@ export const ChangePasswordSchema = z.object({
 });
 
 export type ChangePasswordInput = z.infer<typeof ChangePasswordSchema>;
+
+export const PasskeyRegistrationSchema = z
+  .object({
+    challenge: base64UrlString("Challenge").max(
+      1024,
+      "Challenge must be at most 1024 characters",
+    ),
+    credentialId: base64UrlString("Credential ID").max(
+      1024,
+      "Credential ID must be at most 1024 characters",
+    ),
+    attestationObject: base64UrlString("Attestation object").max(
+      20000,
+      "Attestation object must be at most 20000 characters",
+    ),
+    clientDataJSON: base64UrlString("Client data JSON").max(
+      5000,
+      "Client data JSON must be at most 5000 characters",
+    ),
+  })
+  .strict();
+
+export type PasskeyRegistrationInput = z.infer<
+  typeof PasskeyRegistrationSchema
+>;
