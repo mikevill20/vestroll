@@ -57,6 +57,13 @@
       "when": 1771844260280,
       "tag": "0002_broken_magma",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1774379906730,
+      "tag": "0003_lucky_vulcan",
+      "breakpoints": true
     }
   ]
 }
