@@ -8,6 +8,8 @@ import {
   pgEnum,
   text,
   index,
+  bigint,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -77,6 +79,17 @@ export const approvalStatusEnum = pgEnum("approval_status", [
 ]);
 export const timeOffTypeEnum = pgEnum("time_off_type", ["paid", "unpaid"]);
 export const signerTypeEnum = pgEnum("signer_type", ["Email", "Passkey"]);
+export const fiatTransactionTypeEnum = pgEnum("fiat_transaction_type", [
+  "deposit",
+  "withdrawal",
+  "payout",
+]);
+export const fiatTransactionStatusEnum = pgEnum("fiat_transaction_status", [
+  "pending",
+  "completed",
+  "failed",
+]);
+
 export const auditEventEnum = pgEnum("audit_event", [
   "ROLE_CHANGE",
   "EMAIL_CHANGE",
@@ -517,3 +530,38 @@ export const auditLogs = pgTable("audit_logs", {
   userAgent: text("user_agent"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const fiatTransactions = pgTable(
+  "fiat_transactions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id")
+      .references(() => organizations.id, { onDelete: "cascade" })
+      .notNull(),
+    /** Amount in kobo (smallest NGN unit) to avoid floating-point issues */
+    amount: bigint("amount", { mode: "bigint" }).notNull(),
+    type: fiatTransactionTypeEnum("type").notNull(),
+    status: fiatTransactionStatusEnum("status").default("pending").notNull(),
+    provider: varchar("provider", { length: 255 }).notNull(),
+    providerReference: varchar("provider_reference", { length: 255 })
+      .notNull()
+      .unique(),
+    metadata: jsonb("metadata"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("fiat_transactions_organization_id_idx").on(table.organizationId),
+    index("fiat_transactions_status_idx").on(table.status),
+    index("fiat_transactions_type_idx").on(table.type),
+  ],
+);
+
+export const fiatTransactionRelations = relations(
+  fiatTransactions,
+  (helpers: any) => ({
+    organization: helpers.one(organizations, {
+      fields: [fiatTransactions.organizationId],
+      references: [organizations.id],
+    }),
+  }),
+);
