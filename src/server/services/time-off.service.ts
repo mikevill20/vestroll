@@ -3,6 +3,7 @@ import { db, employees, timeOffRequests, users } from "../db";
 import { ForbiddenError, NotFoundError } from "../utils/errors";
 import { hasAdminOrManagerRole } from "../utils/role";
 import { EmailService } from "./email.service";
+import { Logger } from "./logger.service";
 
 interface UpdateTimeOffStatusInput {
   requestId: string;
@@ -126,7 +127,7 @@ export class TimeOffService {
         html,
       });
     } catch (error) {
-      console.error("[Time Off Notification Error]", error);
+      Logger.error("Failed to send time-off notification email", { to: input.to, status: input.status, error: String(error) });
     }
   }
 

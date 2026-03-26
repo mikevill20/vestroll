@@ -8,6 +8,8 @@ import {
   pgEnum,
   text,
   index,
+  bigint,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -71,17 +73,25 @@ export const approvalStatusEnum = pgEnum("approval_status", [
   "rejected",
 ]);
 export const timeOffTypeEnum = pgEnum("time_off_type", ["paid", "unpaid"]);
-export const invitationStatusEnum = pgEnum("invitation_status", [
-  "pending",
-  "accepted",
-  "declined",
-  "expired",
+export const signerTypeEnum = pgEnum("signer_type", ["Email", "Passkey"]);
+export const fiatTransactionTypeEnum = pgEnum("fiat_transaction_type", [
+  "deposit",
+  "withdrawal",
+  "payout",
 ]);
-export const invitationRoleEnum = pgEnum("invitation_role", [
-  "admin",
-  "hr_manager",
-  "payroll_manager",
-  "employee",
+export const fiatTransactionStatusEnum = pgEnum("fiat_transaction_status", [
+  "pending",
+  "completed",
+  "failed",
+]);
+
+export const auditEventEnum = pgEnum("audit_event", [
+  "ROLE_CHANGE",
+  "EMAIL_CHANGE",
+  "BIOMETRIC_ENROLLMENT",
+  "PASSWORD_CHANGE",
+  "ACCOUNT_DELETION",
+  "SECURITY_CHANGE",
 ]);
 
 export const organizations = pgTable("organizations", {
@@ -103,6 +113,7 @@ export const organizations = pgTable("organizations", {
   billingCountry: varchar("billing_country", { length: 255 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  deletedAt: timestamp("deleted_at"),
 });
 
 export const users = pgTable("users", {
@@ -132,7 +143,10 @@ export const users = pgTable("users", {
 
   oauthProvider: oauthProviderEnum("oauth_provider"),
   oauthId: varchar("oauth_id", { length: 255 }),
+  signerType: signerTypeEnum("signer_type").default("Email").notNull(),
   lastLoginAt: timestamp("last_login_at"),
+  lastLoginIp: varchar("last_login_ip", { length: 45 }),
+  lastLoginUa: text("last_login_ua"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -202,27 +216,61 @@ export const trustedDevices = pgTable("trusted_devices", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const sessions = pgTable("sessions", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  refreshTokenHash: varchar("refresh_token_hash", { length: 255 }).notNull(),
-  deviceInfo: text("device_info"),
-  expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  lastUsedAt: timestamp("last_used_at"),
-});
+export const sessions = pgTable(
+  "sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    refreshTokenHash: varchar("refresh_token_hash", { length: 255 }).notNull(),
+    deviceInfo: text("device_info"),
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    lastUsedAt: timestamp("last_used_at"), 
+  },
+  (table) => [index("sessions_user_id_idx").on(table.userId)]
+);
 
 export const loginAttempts = pgTable("login_attempts", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: varchar("email", { length: 255 }).notNull(),
   ipAddress: varchar("ip_address", { length: 45 }),
   userAgent: text("user_agent"),
+  lastLoginIp: varchar("last_login_ip", { length: 45 }),
+  lastLoginUa: text("last_login_ua"),
   success: boolean("success").notNull(),
   failureReason: text("failure_reason"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const biometricLogs = pgTable("biometric_logs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+  email: varchar("email", { length: 255 }),
+  lastLoginIp: varchar("last_login_ip", { length: 45 }),
+  lastLoginUa: text("last_login_ua"),
+  success: boolean("success").notNull(),
+  failureReason: text("failure_reason"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+/** Server-issued WebAuthn registration challenges; hashed at rest, time-bound and single-use. */
+export const passkeyRegistrationChallenges = pgTable(
+  "passkey_registration_challenges",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    challengeHash: varchar("challenge_hash", { length: 64 }).notNull().unique(),
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("passkey_registration_challenges_user_id_idx").on(table.userId),
+  ],
+);
 
 export const employees = pgTable(
   "employees",
@@ -239,6 +287,9 @@ export const employees = pgTable(
     type: employeeTypeEnum("type").notNull(),
     status: employeeStatusEnum("status").default("Active").notNull(),
     avatarUrl: varchar("avatar_url", { length: 512 }),
+    bankName: varchar("bank_name", { length: 255 }),
+    accountNumber: varchar("account_number", { length: 20 }),
+    accountName: varchar("account_name", { length: 255 }),
     userId: uuid("user_id").references(() => users.id, {
       onDelete: "set null",
     }),
@@ -333,6 +384,7 @@ export const kybVerifications = pgTable("kyb_verifications", {
   formC02C07Url: varchar("form_c02_c07_url", { length: 1024 }),
   status: kybStatusEnum("status").default("pending").notNull(),
   rejectionReason: text("rejection_reason"),
+  rejectionCode: varchar("rejection_code", { length: 100 }),
   submittedAt: timestamp("submitted_at"),
   reviewedAt: timestamp("reviewed_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -517,3 +569,49 @@ export const employeeRelations = relations(employees, (helpers: any) => ({
   }),
   milestones: helpers.many(milestones),
 }));
+
+export const auditLogs = pgTable("audit_logs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+  event: auditEventEnum("event").notNull(),
+  oldValue: text("old_value"),
+  newValue: text("new_value"),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const fiatTransactions = pgTable(
+  "fiat_transactions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id")
+      .references(() => organizations.id, { onDelete: "cascade" })
+      .notNull(),
+    /** Amount in kobo (smallest NGN unit) to avoid floating-point issues */
+    amount: bigint("amount", { mode: "bigint" }).notNull(),
+    type: fiatTransactionTypeEnum("type").notNull(),
+    status: fiatTransactionStatusEnum("status").default("pending").notNull(),
+    provider: varchar("provider", { length: 255 }).notNull(),
+    providerReference: varchar("provider_reference", { length: 255 })
+      .notNull()
+      .unique(),
+    metadata: jsonb("metadata"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("fiat_transactions_organization_id_idx").on(table.organizationId),
+    index("fiat_transactions_status_idx").on(table.status),
+    index("fiat_transactions_type_idx").on(table.type),
+  ],
+);
+
+export const fiatTransactionRelations = relations(
+  fiatTransactions,
+  (helpers: any) => ({
+    organization: helpers.one(organizations, {
+      fields: [fiatTransactions.organizationId],
+      references: [organizations.id],
+    }),
+  }),
+);

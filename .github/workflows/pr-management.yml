@@ -1,7 +1,7 @@
 name: PR Management
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, reopened]
 
 jobs:
@@ -12,6 +12,7 @@ jobs:
       contents: read
       pull-requests: write
     steps:
+      - uses: actions/checkout@v4
       - name: Label PR based on change paths
         uses: actions/labeler@v5
         with:
@@ -24,6 +25,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
+      - uses: actions/checkout@v4
       - name: Check PR size
         uses: codelytv/pr-size-labeler@v1
         with:

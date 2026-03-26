@@ -15,6 +15,7 @@ import {
 } from "@stellar/stellar-sdk";
 import { Server as RpcServer, Api } from "@stellar/stellar-sdk/rpc";
 import { Logger } from "./logger.service";
+import { ServiceDiscovery, EnvServiceDiscovery } from "@/server/utils/service-discovery";
 
 type NetworkName = "testnet" | "mainnet" | "futurenet";
 
@@ -72,17 +73,27 @@ export interface SubmissionResult {
   resultXdr?: string;
 }
 
+export interface LedgerHealth {
+  ledger: number;
+  ledgerAgeSeconds: number;
+}
+
 export class BlockchainService {
   private rpcServer: RpcServer;
   private networkConfig: NetworkConfig;
 
-  constructor(network: NetworkName = "testnet") {
+  constructor(
+    network: NetworkName = "testnet",
+    private readonly serviceDiscovery: ServiceDiscovery = new EnvServiceDiscovery(),
+  ) {
     this.networkConfig = {
       ...NETWORK_CONFIGS[network],
-      rpcUrl:
-        process.env.STELLAR_RPC_URL || NETWORK_CONFIGS[network].rpcUrl,
-      horizonUrl:
-        process.env.STELLAR_HORIZON_URL || NETWORK_CONFIGS[network].horizonUrl,
+      rpcUrl: this.serviceDiscovery.getRpcUrl(
+        NETWORK_CONFIGS[network].rpcUrl,
+      ),
+      horizonUrl: this.serviceDiscovery.getHorizonUrl(
+        NETWORK_CONFIGS[network].horizonUrl,
+      ),
     };
 
     if (!this.networkConfig.rpcUrl) {
@@ -389,6 +400,47 @@ export class BlockchainService {
 
   async getLatestLedger() {
     return this.rpcServer.getLatestLedger();
+  }
+
+  async getLedgerHealth(): Promise<LedgerHealth> {
+    const response = await fetch(
+      `${this.networkConfig.horizonUrl}/ledgers?order=desc&limit=1`,
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `Horizon returned ${response.status}: ${response.statusText}`,
+      );
+    }
+
+    const data = (await response.json()) as {
+      _embedded?: {
+        records?: Array<{
+          sequence: number | string;
+          closed_at: string;
+        }>;
+      };
+    };
+
+    const latestLedger = data._embedded?.records?.[0];
+
+    if (!latestLedger?.closed_at || latestLedger.sequence == null) {
+      throw new Error("Horizon response missing latest ledger data");
+    }
+
+    const closedAtMs = Date.parse(latestLedger.closed_at);
+
+    if (Number.isNaN(closedAtMs)) {
+      throw new Error("Horizon returned an invalid ledger close time");
+    }
+
+    return {
+      ledger: Number(latestLedger.sequence),
+      ledgerAgeSeconds: Math.max(
+        0,
+        Math.floor((Date.now() - closedAtMs) / 1000),
+      ),
+    };
   }
 
   async isHealthy(): Promise<boolean> {

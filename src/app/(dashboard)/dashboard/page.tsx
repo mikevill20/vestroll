@@ -1,6 +1,5 @@
 "use client";
 import TitleHeader from "@/components/features/dashboard/TitleHeader";
-import DesktopHeader from "@/components/layout/desktop-header";
 import avatar from "@/../public/avatar/avatar.png";
 import OnboardingCheckList from "@/components/features/dashboard/home/OnboardingCheckList";
 import RequiringAttention from "@/components/features/dashboard/home/RequiringAttention";

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { POST } from "./route";
 import { NextRequest } from "next/server";
@@ -15,6 +16,7 @@ describe("POST /api/auth/2fa/disable", () => {
     vi.clearAllMocks();
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const createMockRequest = (body: any): NextRequest => {
     return {
       json: async () => body,
@@ -29,6 +31,7 @@ describe("POST /api/auth/2fa/disable", () => {
       user: { firstName: "Test" },
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(AuthUtils.authenticateRequest).mockResolvedValue(mockUser as any);
     vi.mocked(TwoFactorService.disableTwoFactor).mockResolvedValue(undefined);
     vi.mocked(EmailService.sendTwoFactorDisabledEmail).mockResolvedValue(

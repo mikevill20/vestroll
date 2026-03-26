@@ -1,5 +1,6 @@
 import { Transaction } from "@/types/finance.types";
 import { ListTransactionsInput } from "@/server/validations/finance.schema";
+import { PaginatedResponse, toPaginatedResponse } from "@/types/pagination";
 
 const mockTransactions: Transaction[] = [
   {
@@ -122,10 +123,13 @@ export interface TransactionListResult {
   };
 }
 
+/** @deprecated Use PaginatedResponse<Transaction> from @/types/pagination instead */
+export type { TransactionListResult as DeprecatedTransactionListResult };
+
 export class TransactionService {
   static async listTransactions(
     filters: ListTransactionsInput
-  ): Promise<TransactionListResult> {
+  ): Promise<PaginatedResponse<Transaction>> {
     const { page, limit, asset, status, type } = filters;
 
     let filtered = [...mockTransactions];
@@ -151,19 +155,10 @@ export class TransactionService {
         new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     );
 
-    const totalItems = filtered.length;
-    const totalPages = Math.max(1, Math.ceil(totalItems / limit));
+    const total = filtered.length;
     const start = (page - 1) * limit;
     const transactions = filtered.slice(start, start + limit);
 
-    return {
-      transactions,
-      pagination: {
-        currentPage: page,
-        totalPages,
-        totalItems,
-        resultsPerPage: limit,
-      },
-    };
+    return toPaginatedResponse(transactions, page, limit, total);
   }
 }

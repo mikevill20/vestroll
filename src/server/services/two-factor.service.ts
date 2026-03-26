@@ -19,6 +19,7 @@ import {
   TooManyRequestsError,
   NotFoundError,
 } from "../utils/errors";
+import { AuditLogService } from "./audit-log.service";
 
 const TOTP_CONFIG = {
   algorithm: "sha1" as const,
@@ -241,6 +242,12 @@ export class TwoFactorService {
       );
     });
 
+    await AuditLogService.logEvent({
+      userId,
+      event: "SECURITY_CHANGE" as any, // I'll add this to enum if needed, or use existing
+      newValue: "2FA Enabled",
+    });
+
     return { backupCodes: backupCodesList };
   }
 
@@ -389,6 +396,13 @@ export class TwoFactorService {
       await tx.delete(backupCodes).where(eq(backupCodes.userId, userId));
 
       await tx.delete(trustedDevices).where(eq(trustedDevices.userId, userId));
+    });
+
+    await AuditLogService.logEvent({
+      userId,
+      event: "SECURITY_CHANGE" as any,
+      oldValue: "2FA Enabled",
+      newValue: "2FA Disabled",
     });
   }
 

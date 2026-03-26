@@ -3,6 +3,7 @@ import { eq, and, desc } from "drizzle-orm";
 import { OTPService } from "./otp.service";
 import { UserService } from "./user.service";
 import { NotFoundError, BadRequestError, ForbiddenError } from "../utils/errors";
+import { Logger } from "./logger.service";
 
 const MAX_VERIFICATION_ATTEMPTS = 5;
 export const OTP_EXPIRATION_MINUTES = 15;
@@ -32,7 +33,7 @@ export class EmailVerificationService {
     const user = await UserService.findByEmail(email);
     if (!user) {
       const maskedEmail = maskEmail(email);
-      console.error(`[Security] Verification attempt for non-existent email: ${maskedEmail}`);
+      Logger.warn("Email verification attempt for non-existent user", { email: maskedEmail });
       throw new NotFoundError("User not found");
     }
 
@@ -57,7 +58,7 @@ export class EmailVerificationService {
     }
 
     if (verificationRecord.attempts >= MAX_VERIFICATION_ATTEMPTS) {
-      console.error(`[Security] Account locked - max attempts exceeded for user: ${user.id}`);
+      Logger.warn("Account locked due to max verification attempts exceeded", { userId: user.id });
       throw new ForbiddenError(
         "Account locked due to too many failed verification attempts. Please request a new verification code."
       );
@@ -65,7 +66,7 @@ export class EmailVerificationService {
 
     const now = new Date();
     if (verificationRecord.expiresAt < now) {
-      console.error(`[Security] Expired OTP attempt for user: ${user.id}`);
+      Logger.warn("OTP verification attempt with expired code", { userId: user.id });
       throw new BadRequestError(
         "Verification code has expired. Please request a new one."
       );
@@ -82,9 +83,7 @@ export class EmailVerificationService {
 
       const remainingAttempts = MAX_VERIFICATION_ATTEMPTS - newAttempts;
 
-      console.error(
-        `[Security] Invalid OTP attempt for user: ${user.id}. Attempts: ${newAttempts}/${MAX_VERIFICATION_ATTEMPTS}`
-      );
+      Logger.warn("Invalid OTP attempt", { userId: user.id, attempts: newAttempts, maxAttempts: MAX_VERIFICATION_ATTEMPTS });
 
       if (remainingAttempts <= 0) {
         throw new ForbiddenError(
@@ -109,7 +108,7 @@ export class EmailVerificationService {
         .set({ status: "active", updatedAt: new Date() })
         .where(eq(users.id, user.id));
 
-      console.log(`[Info] Email verified successfully for user: ${user.id}`);
+      Logger.info("Email verification completed successfully", { userId: user.id, email: user.email });
 
       return {
         success: true as const,

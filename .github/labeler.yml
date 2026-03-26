@@ -5,9 +5,8 @@ feature:
       - any-glob-to-any-file: "src/**/*"
 
 fix:
-  - changed-files:
+    - changed-files:
       - any-glob-to-any-file: "src/**/*"
-    body-contains: "fix"
 
 docs:
   - changed-files:

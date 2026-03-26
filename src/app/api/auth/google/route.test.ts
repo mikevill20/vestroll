@@ -39,7 +39,15 @@ describe("POST /api/auth/google", () => {
     );
     vi.mocked(JWTService.generateAccessToken).mockReturnValue("access-token");
     vi.mocked(JWTService.generateRefreshToken).mockReturnValue("refresh-token");
-    vi.mocked(SessionService.createSession).mockResolvedValue(undefined);
+    vi.mocked(SessionService.createSession).mockResolvedValue({
+      id: "sess-1",
+      userId: "u1",
+      refreshTokenHash: "hash",
+      deviceInfo: null,
+      expiresAt: new Date(),
+      createdAt: new Date(),
+      lastUsedAt: null,
+    });
 
     const req = createMockRequest({ idToken: "valid-token" });
     const response = await POST(req);

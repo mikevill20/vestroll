@@ -1,4 +1,5 @@
 import * as jose from "jose";
+import { Logger } from "./logger.service";
 
 export class JWTTokenService {
   private static readonly ACCESS_TOKEN_EXPIRY = "15m";
@@ -67,7 +68,7 @@ export class JWTTokenService {
       const { payload } = await jose.jwtVerify(token, key);
       return payload;
     } catch (error) {
-      console.error("JWT Verification error:", error);
+      Logger.error("JWT verification failed", { error: String(error) });
       return null;
     }
   }

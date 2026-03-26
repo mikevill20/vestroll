@@ -86,7 +86,7 @@ export default function TransactionsPage() {
           </span>
         );
       default:
-        return (item as any)[column.key] || "-";
+        return (item[column.key as keyof Transaction] as React.ReactNode) || "-";
     }
   };
 

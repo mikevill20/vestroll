@@ -6,6 +6,7 @@ import {
   IssuerMismatchError,
 } from "../utils/errors";
 import { OAuthUserInfo } from "./oauth-user-provisioning.service";
+import { Logger } from "./logger.service";
 
 export class GoogleOAuthService {
   private static client: OAuth2Client;
@@ -74,7 +75,7 @@ export class GoogleOAuthService {
           throw new TokenExpiredError("Google token has expired");
         }
 
-        console.error("[Google OAuth Error]", error.message);
+        Logger.error("Google OAuth token verification failed", { error: error.message });
         throw new InvalidTokenError("Failed to verify Google token");
       }
 

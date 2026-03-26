@@ -24,6 +24,7 @@ describe("GET /api/kyb/status", () => {
     vi.mocked(KybService.getStatus).mockResolvedValue({
       status: "not_started",
       rejectionReason: null,
+      rejectionCode: null,
       submittedAt: null,
     });
 
@@ -34,6 +35,7 @@ describe("GET /api/kyb/status", () => {
     expect(data.success).toBe(true);
     expect(data.data.status).toBe("not_started");
     expect(data.data.rejectionReason).toBeNull();
+    expect(data.data.rejectionCode).toBeNull();
     expect(data.data.submittedAt).toBeNull();
     expect(KybService.getStatus).toHaveBeenCalledWith("user-123");
   });
@@ -46,6 +48,7 @@ describe("GET /api/kyb/status", () => {
     vi.mocked(KybService.getStatus).mockResolvedValue({
       status: "pending",
       rejectionReason: null,
+      rejectionCode: null,
       submittedAt,
     });
 
@@ -64,6 +67,7 @@ describe("GET /api/kyb/status", () => {
     vi.mocked(KybService.getStatus).mockResolvedValue({
       status: "rejected",
       rejectionReason: "Invalid business registration number",
+      rejectionCode: "INVALID_REGISTRATION_NUMBER",
       submittedAt: new Date("2026-01-15T10:00:00Z"),
     });
 
@@ -73,6 +77,7 @@ describe("GET /api/kyb/status", () => {
     const data = await response.json();
     expect(data.data.status).toBe("rejected");
     expect(data.data.rejectionReason).toBe("Invalid business registration number");
+    expect(data.data.rejectionCode).toBe("INVALID_REGISTRATION_NUMBER");
   });
 
   it("should return verified status", async () => {
@@ -82,6 +87,7 @@ describe("GET /api/kyb/status", () => {
     vi.mocked(KybService.getStatus).mockResolvedValue({
       status: "verified",
       rejectionReason: null,
+      rejectionCode: null,
       submittedAt: new Date("2026-01-10T10:00:00Z"),
     });
 

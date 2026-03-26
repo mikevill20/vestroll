@@ -52,6 +52,10 @@ export class SessionService {
         await db.delete(sessions).where(eq(sessions.id, sessionId));
     }
 
+    static async revokeAllSessions(userId: string) {
+        await db.delete(sessions).where(eq(sessions.userId, userId));
+    }
+
     static async cleanupExpiredSessions() {
         const now = new Date();
         await db.delete(sessions).where(lt(sessions.expiresAt, now));

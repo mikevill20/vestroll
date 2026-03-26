@@ -57,7 +57,8 @@ describe("OAuthUserProvisioningService", () => {
             };
 
             const result = await OAuthUserProvisioningService.provisionUser(
-                googleUserInfo
+                googleUserInfo,
+                "google",
             );
 
             expect(result).toEqual(mockUser);
@@ -116,7 +117,8 @@ describe("OAuthUserProvisioningService", () => {
             };
 
             const result = await OAuthUserProvisioningService.provisionUser(
-                googleUserInfo
+                googleUserInfo,
+                "google",
             );
 
             expect(result.oauthId).toBe("google-456");
@@ -133,6 +135,7 @@ describe("OAuthUserProvisioningService", () => {
                 oauthId: "google-789",
                 oauthProvider: "google",
                 status: "active",
+                signerType: "Email",
                 passwordHash: null,
             };
 
@@ -168,13 +171,15 @@ describe("OAuthUserProvisioningService", () => {
             };
 
             const result = await OAuthUserProvisioningService.provisionUser(
-                googleUserInfo
+                googleUserInfo,
+                "google",
             );
 
             expect(result.id).toBe("user-789");
             expect(result.email).toBe("newuser@example.com");
             expect(result.status).toBe("active");
             expect(result.passwordHash).toBeNull();
+            expect(result.signerType).toBe("Email");
             expect(mockInsert).toHaveBeenCalled();
         });
     });

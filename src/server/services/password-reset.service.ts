@@ -5,6 +5,7 @@ import { UserService } from "./user.service";
 import { PasswordVerificationService } from "./password-verification.service";
 import { EmailService } from "./email.service";
 import { BadRequestError } from "../utils/errors";
+import { Logger } from "./logger.service";
 
 const TOKEN_EXPIRATION_MS = 60 * 60 * 1000;
 
@@ -17,8 +18,7 @@ export class PasswordResetService {
     const user = await UserService.findByEmail(email);
 
     if (!user) {
-
-      console.log(`[Info] Password reset requested for unknown email: ${email}`);
+      Logger.info("Password reset requested for unknown email", { email });
       return;
     }
 
@@ -39,7 +39,7 @@ export class PasswordResetService {
 
     await EmailService.sendPasswordResetEmail(user.email, user.firstName, resetLink);
 
-    console.log(`[Info] Password reset email sent for user: ${user.id}`);
+    Logger.info("Password reset email sent", { userId: user.id, email: user.email });
   }
 
   static async resetPassword(token: string, newPassword: string): Promise<void> {
@@ -73,6 +73,6 @@ export class PasswordResetService {
         .where(eq(passwordResets.id, resetRecord.id));
     });
 
-    console.log(`[Info] Password reset successfully for user: ${resetRecord.userId}`);
+    Logger.info("Password reset successfully completed", { userId: resetRecord.userId });
   }
 }

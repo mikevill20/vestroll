@@ -24,7 +24,7 @@ describe("GET /api/team/employees", () => {
   };
 
   const mockEmployeesResponse = {
-    employees: [
+    data: [
       {
         id: "emp-1",
         name: "James Akinbiola",
@@ -35,10 +35,12 @@ describe("GET /api/team/employees", () => {
         avatarUrl: "/profileImage.png" as string | null,
       },
     ],
-    totalCount: 1,
-    page: 1,
-    limit: 12,
-    totalPages: 1,
+    meta: {
+      page: 1,
+      limit: 12,
+      total: 1,
+      totalPages: 1,
+    },
   };
 
   it("should return paginated employees for authenticated user", async () => {
@@ -56,11 +58,11 @@ describe("GET /api/team/employees", () => {
     const data = await response.json();
     expect(data.success).toBe(true);
     expect(data.message).toBe("Employees retrieved successfully");
-    expect(data.data.employees).toHaveLength(1);
-    expect(data.data.totalCount).toBe(1);
-    expect(data.data.page).toBe(1);
-    expect(data.data.limit).toBe(12);
-    expect(data.data.totalPages).toBe(1);
+    expect(data.data.data).toHaveLength(1);
+    expect(data.data.meta.total).toBe(1);
+    expect(data.data.meta.page).toBe(1);
+    expect(data.data.meta.limit).toBe(12);
+    expect(data.data.meta.totalPages).toBe(1);
   });
 
   it("should pass default page and limit when not provided", async () => {

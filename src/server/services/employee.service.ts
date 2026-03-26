@@ -3,13 +3,28 @@ import { employees, users } from "../db/schema";
 import { eq, and, or, ilike, count, SQL } from "drizzle-orm";
 import { ForbiddenError } from "../utils/errors";
 import { GetEmployeesQuery } from "../validations/employee.schema";
+import { PaginatedResponse, toPaginatedResponse } from "@/types/pagination";
+
+/** Shape of an employee object in API responses */
+export interface EmployeeItem {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+  type: string;
+  avatarUrl: string | null;
+}
 
 function escapeSearchTerm(term: string): string {
   return term.replace(/%/g, "\\%").replace(/_/g, "\\_");
 }
 
 export class EmployeeService {
-  static async getEmployees(userId: string, query: GetEmployeesQuery) {
+  static async getEmployees(
+    userId: string,
+    query: GetEmployeesQuery
+  ): Promise<PaginatedResponse<EmployeeItem>> {
     const [user] = await db
       .select({ organizationId: users.organizationId })
       .from(users)
@@ -69,7 +84,7 @@ export class EmployeeService {
       .limit(query.limit)
       .offset(offset);
 
-    const employeeList = results.map((emp) => ({
+    const employeeList: EmployeeItem[] = results.map((emp) => ({
       id: emp.id,
       name: `${emp.firstName} ${emp.lastName}`,
       email: emp.email,
@@ -79,12 +94,6 @@ export class EmployeeService {
       avatarUrl: emp.avatarUrl,
     }));
 
-    return {
-      employees: employeeList,
-      totalCount,
-      page: query.page,
-      limit: query.limit,
-      totalPages: Math.ceil(totalCount / query.limit),
-    };
+    return toPaginatedResponse(employeeList, query.page, query.limit, totalCount);
   }
 }

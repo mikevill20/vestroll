@@ -15,7 +15,7 @@ vi.mock("@/server/db", () => ({
 const createMockRequest = (body: object): NextRequest =>
   ({ json: async () => body }) as unknown as NextRequest;
 
-const mockParams = { params: { id: "milestone-123" } };
+const mockParams = { params: Promise.resolve({ id: "milestone-123" }) };
 
 describe("PATCH /api/team/milestones/:id/status", () => {
   beforeEach(() => vi.clearAllMocks());
@@ -36,11 +36,11 @@ describe("PATCH /api/team/milestones/:id/status", () => {
     mockDbChain("Manager");
     vi.mocked(TeamService.updateMilestoneStatus).mockResolvedValue({
       id: "milestone-123",
-      newStatus: "Approved",
+      newStatus: "approved",
       updatedAt: new Date(),
     } as any);
 
-    const req = createMockRequest({ status: "Approved" });
+    const req = createMockRequest({ status: "approved" });
     const res = await PATCH(req, mockParams);
     const data = await res.json();
 
@@ -55,7 +55,7 @@ describe("PATCH /api/team/milestones/:id/status", () => {
       Object.assign(new Error("A reason is required when rejecting a milestone"), { statusCode: 400 })
     );
 
-    const req = createMockRequest({ status: "Rejected" });
+    const req = createMockRequest({ status: "rejected" });
     const res = await PATCH(req, mockParams);
 
     expect(res.status).toBe(500);
@@ -65,7 +65,7 @@ describe("PATCH /api/team/milestones/:id/status", () => {
     vi.mocked(AuthUtils.authenticateRequest).mockResolvedValue({ userId: "user-1" } as any);
     mockDbChain("Employee");
 
-    const req = createMockRequest({ status: "Approved" });
+    const req = createMockRequest({ status: "approved" });
     const res = await PATCH(req, mockParams);
 
     expect(res.status).toBe(403);

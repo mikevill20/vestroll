@@ -1,5 +1,5 @@
 import { db, users } from "../db";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 export interface OAuthUserInfo {
   email: string;
   firstName: string;
@@ -54,10 +54,12 @@ export class OAuthUserProvisioningService {
   }
 
   static async findByEmail(email: string) {
+    const normalizedEmail = email.toLowerCase().trim();
+
     const [user] = await db
       .select()
       .from(users)
-      .where(eq(users.email, email))
+      .where(sql`lower(${users.email}) = ${normalizedEmail}`)
       .limit(1);
 
     return user || null;
@@ -98,16 +100,19 @@ export class OAuthUserProvisioningService {
     oauthProvider: "google" | "apple";
     oauthId: string;
   }) {
+    const normalizedEmail = data.email.toLowerCase().trim();
+
     const [user] = await db
       .insert(users)
       .values({
         firstName: data.firstName,
         lastName: data.lastName,
-        email: data.email,
+        email: normalizedEmail,
         oauthProvider: data.oauthProvider,
         oauthId: data.oauthId,
         passwordHash: null,
         status: "active",
+        signerType: "Email",
         lastLoginAt: new Date(),
       })
       .returning();

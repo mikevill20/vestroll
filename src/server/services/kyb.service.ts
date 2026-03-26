@@ -2,8 +2,12 @@ import crypto from "crypto";
 import { db, kybVerifications, kybStatusEnum } from "../db";
 import { eq } from "drizzle-orm";
 import { ConflictError } from "../utils/errors";
+import { Logger } from "./logger.service";
 
 export type KybStatus = (typeof kybStatusEnum.enumValues)[number];
+
+// Re-export from shared types for backward compatibility
+export { KYB_REJECTION_CODES, type KybRejectionCode } from "@/types/kyb";
 
 const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
 const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY;
@@ -22,6 +26,7 @@ export class KybService {
       return {
         status: "not_started" as KybStatus,
         rejectionReason: null,
+        rejectionCode: null,
         submittedAt: null,
       };
     }
@@ -29,6 +34,7 @@ export class KybService {
     return {
       status: verification.status,
       rejectionReason: verification.rejectionReason,
+      rejectionCode: verification.rejectionCode,
       submittedAt: verification.submittedAt,
     };
   }
@@ -71,7 +77,7 @@ export class KybService {
 
     if (!response.ok) {
       const errorBody = await response.text();
-      console.error("[KYB Cloudinary Upload Error]", errorBody);
+      Logger.error("Cloudinary upload failed", { errorBody, statusCode: response.status });
       throw new Error("Failed to upload file to Cloudinary");
     }
 
@@ -85,7 +91,7 @@ export class KybService {
 
   static async deleteFromCloudinary(publicIds: string[]): Promise<void> {
     if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET) {
-      console.error("[KYB Cleanup] Cloudinary env vars not configured, cannot delete files");
+      Logger.warn("Cloudinary environment variables not configured, cannot delete files", { missingEnv: true });
       return;
     }
 
@@ -109,7 +115,7 @@ export class KybService {
           { method: "POST", body: formData },
         );
       } catch (error) {
-        console.error(`[KYB Cleanup] Failed to delete ${publicId}:`, error);
+        Logger.error("Failed to delete file from Cloudinary", { publicId, error: String(error) });
       }
     }
   }

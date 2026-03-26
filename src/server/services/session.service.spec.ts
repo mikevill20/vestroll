@@ -188,6 +188,20 @@ describe("SessionService", () => {
         });
     });
 
+    describe("revokeAllSessions", () => {
+        it("should delete all sessions for a user", async () => {
+            const mockDelete = vi.fn().mockReturnValue({
+                where: vi.fn().mockResolvedValue(undefined),
+            });
+
+            (db.delete as any) = mockDelete;
+
+            await SessionService.revokeAllSessions("user-123");
+
+            expect(mockDelete).toHaveBeenCalled();
+        });
+    });
+
     describe("cleanupExpiredSessions", () => {
         it("should delete all expired sessions", async () => {
             const mockDelete = vi.fn().mockReturnValue({

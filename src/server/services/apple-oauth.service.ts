@@ -6,6 +6,7 @@ import {
   IssuerMismatchError,
 } from "../utils/errors";
 import { OAuthUserInfo } from "./oauth-user-provisioning.service";
+import { Logger } from "./logger.service";
 
 export class AppleOAuthService {
   private static APPLE_KEYS_URL = "https://appleid.apple.com/auth/keys";
@@ -52,7 +53,7 @@ export class AppleOAuthService {
         }
       }
 
-      console.error("[Apple OAuth Error]", error);
+      Logger.error("Apple OAuth token verification failed", { error: String(error) });
       if (error instanceof Error) {
         throw new InvalidTokenError(
           `Failed to verify Apple token: ${error.message}`,

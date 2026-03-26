@@ -1,5 +1,5 @@
 import { db, users, organizations } from "../db";
-import { eq } from "drizzle-orm";
+import { eq, isNull, and } from "drizzle-orm";
 import { NotFoundError } from "../utils/errors";
 import * as _ from "lodash";
 
@@ -38,7 +38,12 @@ export class CompanyService {
     const [org] = await db
       .select()
       .from(organizations)
-      .where(eq(organizations.id, user.organizationId))
+      .where(
+        and(
+          eq(organizations.id, user.organizationId),
+          isNull(organizations.deletedAt)
+        )
+      )
       .limit(1);
 
     if (!org) {
@@ -80,7 +85,12 @@ export class CompanyService {
     const [org] = await db
       .select()
       .from(organizations)
-      .where(eq(organizations.id, user.organizationId))
+      .where(
+        and(
+          eq(organizations.id, user.organizationId),
+          isNull(organizations.deletedAt)
+        )
+      )
       .limit(1);
 
     if (!org) {

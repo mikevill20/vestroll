@@ -9,6 +9,7 @@ import {
   BadRequestError,
   TooManyRequestsError,
 } from "../utils/errors";
+import { Logger } from "./logger.service";
 
 export class OTPResendService {
   private static readonly OTP_EXPIRATION_MINUTES = 15;
@@ -67,7 +68,7 @@ export class OTPResendService {
         attempts: 0,
       });
 
-      console.log(`[Email Mock] Resending OTP ${otp} to ${email}`);
+      Logger.info("OTP resent successfully", { email, userId: user.id });
 
       return {
         message: "Verification code resent",

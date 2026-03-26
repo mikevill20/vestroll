@@ -61,7 +61,7 @@ import { ListTransactionsSchema } from "@/server/validations/finance.schema";
  *                 data:
  *                   type: object
  *                   properties:
- *                     transactions:
+ *                     data:
  *                       type: array
  *                       items:
  *                         type: object
@@ -82,16 +82,16 @@ import { ListTransactionsSchema } from "@/server/validations/finance.schema";
  *                             format: date-time
  *                           description:
  *                             type: string
- *                     pagination:
+ *                     meta:
  *                       type: object
  *                       properties:
- *                         currentPage:
+ *                         page:
+ *                           type: integer
+ *                         limit:
+ *                           type: integer
+ *                         total:
  *                           type: integer
  *                         totalPages:
- *                           type: integer
- *                         totalItems:
- *                           type: integer
- *                         resultsPerPage:
  *                           type: integer
  *       400:
  *         description: Invalid query parameters

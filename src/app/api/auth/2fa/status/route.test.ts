@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { GET } from "./route";
 import { NextRequest } from "next/server";
@@ -46,3 +47,4 @@ describe("GET /api/auth/2fa/status", () => {
     expect(response.status).toBe(401);
   });
 });
+

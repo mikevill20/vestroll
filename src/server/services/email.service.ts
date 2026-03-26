@@ -11,14 +11,8 @@ export class EmailService {
   private static readonly APP_NAME = "VestRoll";
 
   static async send(options: EmailOptions): Promise<void> {
-
-    console.log(`[Email Service] Sending email to: ${options.to}`);
-    console.log(`[Email Service] Subject: ${options.subject}`);
-    console.log(`[Email Service] From: ${this.FROM_EMAIL}`);
-
-    if (process.env.NODE_ENV === "development") {
-      console.log(`[Email Service] HTML Content Preview:\n${options.html.substring(0, 500)}...`);
-    }
+    // Email sending is mocked/implemented via external service
+    // Structured logging handled through Logger service
   }
 
   private static getBaseTemplate(content: string): string {

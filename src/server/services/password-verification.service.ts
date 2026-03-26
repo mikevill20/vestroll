@@ -1,11 +1,12 @@
 import bcrypt from "bcryptjs";
+import { Logger } from "./logger.service";
 
 export class PasswordVerificationService {
   static async verify(password: string, hash: string): Promise<boolean> {
     try {
       return await bcrypt.compare(password, hash);
     } catch (error) {
-      console.error("Password verification error:", error);
+      Logger.error("Password verification failed", { error: String(error) });
       return false;
     }
   }

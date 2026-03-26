@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { POST } from "./route";
 import { NextRequest } from "next/server";
@@ -122,3 +123,4 @@ describe("POST /api/auth/2fa/setup", () => {
     expect(data.message).toBe("Internal server error");
   });
 });
+

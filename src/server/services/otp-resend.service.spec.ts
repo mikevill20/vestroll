@@ -62,7 +62,7 @@ describe("OTPResendService", () => {
       updatedAt: new Date(),
     };
 
-    vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser);
+    vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as any);
 
     await expect(
       OTPResendService.resendOTP("user@example.com")
@@ -96,7 +96,7 @@ describe("OTPResendService", () => {
 
     const retryAfter = new Date(Date.now() + 3 * 60 * 1000);
 
-    vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser);
+    vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as any);
     vi.mocked(RateLimitService.checkResendLimit).mockResolvedValue({
       isLimited: true,
       retryAfter,
@@ -133,7 +133,7 @@ describe("OTPResendService", () => {
     const mockOTP = "123456";
     const mockOTPHash = "hashed-otp";
 
-    vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser);
+    vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as any);
     vi.mocked(RateLimitService.checkResendLimit).mockResolvedValue({
       isLimited: false,
       requestCount: 1,
@@ -198,7 +198,7 @@ describe("OTPResendService", () => {
       updatedAt: new Date(),
     };
 
-    vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser);
+    vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as any);
     vi.mocked(RateLimitService.checkResendLimit).mockResolvedValue({
       isLimited: false,
       requestCount: 0,
@@ -255,7 +255,7 @@ describe("OTPResendService", () => {
       updatedAt: new Date(),
     };
 
-    vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser);
+    vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as any);
     vi.mocked(RateLimitService.checkResendLimit).mockResolvedValue({
       isLimited: false,
       requestCount: 0,

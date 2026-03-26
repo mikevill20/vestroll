@@ -136,6 +136,9 @@ export class TimesheetService {
         status: timesheets.status,
       });
 
-    return updated;
+    return {
+      ...updated,
+      totalApprovedAmount,
+    };
   }
 }

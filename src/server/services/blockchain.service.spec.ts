@@ -626,6 +626,47 @@ describe("BlockchainService", () => {
     });
   });
 
+  describe("getLedgerHealth", () => {
+    it("should return latest ledger and age in seconds", async () => {
+      vi.setSystemTime(new Date("2026-03-26T12:40:00Z"));
+
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          _embedded: {
+            records: [
+              {
+                sequence: "1234",
+                closed_at: "2026-03-26T12:39:15Z",
+              },
+            ],
+          },
+        }),
+      });
+
+      const result = await service.getLedgerHealth();
+
+      expect(result).toEqual({
+        ledger: 1234,
+        ledgerAgeSeconds: 45,
+      });
+      expect(mockFetch).toHaveBeenCalledWith(
+        "https://horizon-testnet.stellar.org/ledgers?order=desc&limit=1",
+      );
+    });
+
+    it("should throw when latest ledger data is missing", async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => ({ _embedded: { records: [] } }),
+      });
+
+      await expect(service.getLedgerHealth()).rejects.toThrow(
+        /missing latest ledger data/i,
+      );
+    });
+  });
+
   describe("isHealthy", () => {
     it("should return true when RPC is healthy", async () => {
       mockRpcServer.getHealth.mockResolvedValue({ status: "healthy" });

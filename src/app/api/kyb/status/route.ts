@@ -27,6 +27,10 @@ import { KybService } from "@/server/services/kyb.service";
  *                 rejectionReason:
  *                   type: string
  *                   nullable: true
+ *                 rejectionCode:
+ *                   type: string
+ *                   nullable: true
+ *                   description: Machine-readable rejection code (e.g., INVALID_CERTIFICATE, INVALID_MEMORANDUM)
  *                 submittedAt:
  *                   type: string
  *                   format: date-time
