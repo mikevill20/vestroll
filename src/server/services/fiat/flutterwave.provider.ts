@@ -31,12 +31,56 @@ async function safeJson(res: Response): Promise<any> {
 export class FlutterwaveProvider implements PaymentProvider {
   private readonly config: FlutterwaveConfig;
 
+  private readonly FLUTTERWAVE_STATUS_MAP: Record<string, DisburseResult["status"]> = {
+    NEW: "pending",
+    PENDING: "pending",
+    SUCCESSFUL: "completed",
+    FAILED: "failed",
+  };
+
   constructor(config: FlutterwaveConfig) {
     this.config = config;
   }
 
   async disburse(request: DisburseRequest): Promise<DisburseResult> {
-    throw new Error("Not implemented");
+    const response = await fetch(
+      `${this.config.baseUrl}/v3/transfers`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${this.config.secretKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          account_bank: request.destinationBankCode,
+          account_number: request.destinationAccountNumber,
+          amount: request.amount,
+          narration: request.narration,
+          currency: request.currency,
+          reference: request.reference,
+          debit_currency: request.currency,
+        }),
+      },
+    );
+
+    const data = await safeJson(response);
+
+    if (!response.ok || data.status !== "success") {
+      Logger.error("Flutterwave disbursement failed", {
+        reference: request.reference,
+        message: data.message,
+      });
+      throw FlutterwaveProvider.mapError(response.status, data.message);
+    }
+
+    const body = data.data;
+    return {
+      reference: body.reference,
+      providerReference: String(body.id),
+      status: this.FLUTTERWAVE_STATUS_MAP[body.status] ?? "pending",
+      amount: body.amount,
+      fee: body.fee,
+    };
   }
 
   async generateVirtualAccount(
