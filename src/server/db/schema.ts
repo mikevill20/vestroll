@@ -51,11 +51,6 @@ export const employeeTypeEnum = pgEnum("employee_type", [
   "Freelancer",
   "Contractor",
 ]);
-export const timesheetStatusEnum = pgEnum("timesheet_status", [
-  "Pending",
-  "Approved",
-  "Rejected",
-]);
 export const paymentTypeEnum = pgEnum("payment_type", ["crypto", "fiat"]);
 export const invoiceStatusEnum = pgEnum("invoice_status", [
   "pending",
@@ -167,6 +162,8 @@ export const organizationRelations = relations(
   organizations,
   (helpers: any) => ({
     users: helpers.many(users),
+    employees: helpers.many(employees),
+    invitations: helpers.many(organizationInvitations),
   }),
 );
 
@@ -296,10 +293,28 @@ export const employees = pgTable(
     userId: uuid("user_id").references(() => users.id, {
       onDelete: "set null",
     }),
+    // Bank account details
+    bankName: varchar("bank_name", { length: 255 }),
+    accountNumber: varchar("account_number", { length: 255 }),
+    routingNumber: varchar("routing_number", { length: 255 }),
+    sortCode: varchar("sort_code", { length: 255 }),
+    iban: varchar("iban", { length: 34 }),
+    swiftCode: varchar("swift_code", { length: 11 }),
+    accountType: varchar("account_type", { length: 50 }),
+    accountHolderName: varchar("account_holder_name", { length: 255 }),
+    isAccountVerified: boolean("is_account_verified").default(false).notNull(),
+    accountVerifiedAt: timestamp("account_verified_at"),
+    bankAddress: varchar("bank_address", { length: 500 }),
+    bankCity: varchar("bank_city", { length: 255 }),
+    bankCountry: varchar("bank_country", { length: 255 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
-  (table) => [index("employees_organization_id_idx").on(table.organizationId)],
+  (table) => [
+    index("employees_organization_id_idx").on(table.organizationId),
+    index("employees_account_number_idx").on(table.accountNumber),
+    index("employees_routing_number_idx").on(table.routingNumber),
+  ],
 );
 
 export const companyProfiles = pgTable("company_profiles", {
@@ -508,6 +523,45 @@ export const passwordResets = pgTable("password_resets", {
 }, (table) => [
   index("password_resets_user_id_idx").on(table.userId),
 ]);
+
+export const organizationInvitations = pgTable("organization_invitations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .references(() => organizations.id, { onDelete: "cascade" })
+    .notNull(),
+  invitedByUserId: uuid("invited_by_user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  role: invitationRoleEnum("role").notNull(),
+  token: varchar("token", { length: 255 }).notNull().unique(),
+  status: invitationStatusEnum("status").default("pending").notNull(),
+  message: text("message"),
+  expiresAt: timestamp("expires_at").notNull(),
+  acceptedAt: timestamp("accepted_at"),
+  declinedAt: timestamp("declined_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => [
+  index("organization_invitations_organization_id_idx").on(table.organizationId),
+  index("organization_invitations_email_idx").on(table.email),
+  index("organization_invitations_token_idx").on(table.token),
+  index("organization_invitations_status_idx").on(table.status),
+]);
+
+export const organizationInvitationRelations = relations(
+  organizationInvitations,
+  (helpers: any) => ({
+    organization: helpers.one(organizations, {
+      fields: [organizationInvitations.organizationId],
+      references: [organizations.id],
+    }),
+    invitedBy: helpers.one(users, {
+      fields: [organizationInvitations.invitedByUserId],
+      references: [users.id],
+    }),
+  }),
+);
 export const employeeRelations = relations(employees, (helpers: any) => ({
   organization: helpers.one(organizations, {
     fields: [employees.organizationId],

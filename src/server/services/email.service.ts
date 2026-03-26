@@ -373,4 +373,65 @@ export class EmailService {
       html: this.getBaseTemplate(content),
     });
   }
+
+  static async sendInvitationEmail(options: {
+    to: string;
+    organizationName: string;
+    invitedByName: string;
+    role: string;
+    token: string;
+    message?: string;
+  }): Promise<void> {
+    const { to, organizationName, invitedByName, role, token, message } = options;
+    
+    const roleDisplayNames = {
+      admin: "Administrator",
+      hr_manager: "HR Manager", 
+      payroll_manager: "Payroll Manager",
+      employee: "Employee",
+    };
+
+    const content = `
+      <h2>You're Invited to Join ${organizationName}</h2>
+      <p>Hello,</p>
+      <p>${invitedByName} has invited you to join <strong>${organizationName}</strong> on ${this.APP_NAME} as a <strong>${roleDisplayNames[role as keyof typeof roleDisplayNames] || role}</strong>.</p>
+      
+      ${message ? `<div class="alert-box info" style="margin: 20px 0;"><p><strong>Message from ${invitedByName}:</strong></p><p>"${message}"</p></div>` : ''}
+      
+      <p>Click the button below to accept this invitation and get started:</p>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/invite/accept?token=${token}" 
+           class="button" 
+           style="display: inline-block; background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
+          Accept Invitation
+        </a>
+      </div>
+      
+      <p>Or copy and paste this link into your browser:</p>
+      <p style="word-break: break-all; color: #6B7280; font-size: 14px;">
+        ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/invite/accept?token=${token}
+      </p>
+      
+      <p style="margin-top: 30px;"><strong>What happens next?</strong></p>
+      <ul>
+        <li>Create your account with your email and a secure password</li>
+        <li>Access your organization's payroll dashboard</li>
+        <li>Start managing your payroll and payments</li>
+      </ul>
+      
+      <div class="alert-box warning" style="margin-top: 30px;">
+        <strong>Important:</strong>
+        <p style="margin: 8px 0 0 0;">This invitation will expire in 7 days. If you don't accept it by then, you'll need to request a new invitation.</p>
+      </div>
+      
+      <p style="margin-top: 30px;">If you weren't expecting this invitation, you can safely ignore this email.</p>
+    `;
+
+    await this.send({
+      to,
+      subject: `You're invited to join ${organizationName} - ${this.APP_NAME}`,
+      html: this.getBaseTemplate(content),
+    });
+  }
 }
