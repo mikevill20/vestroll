@@ -28,6 +28,20 @@ interface MonnifyAuthResponse {
   };
 }
 
+interface MonnifyVirtualAccountResponse {
+  requestSuccessful: boolean;
+  responseMessage?: string;
+  responseBody: {
+    accounts: Array<{
+      accountNumber: string;
+      accountName: string;
+      bankName: string;
+      bankCode: string;
+    }>;
+    accountReference: string;
+  };
+}
+
 interface MonnifyDisburseResponse {
   requestSuccessful: boolean;
   responseMessage?: string;
@@ -138,10 +152,47 @@ export class MonnifyProvider implements PaymentProvider {
   }
 
   async generateVirtualAccount(
-    _request: VirtualAccountRequest
+    request: VirtualAccountRequest
   ): Promise<VirtualAccountResult> {
-    // Implemented in Task 4
-    throw new InternalServerError("Not implemented");
+    const token = await this.authenticate();
+
+    const response = await fetch(
+      `${this.config.baseUrl}/api/v1/bank-transfer/reserved-accounts`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          accountReference: request.reference,
+          accountName: request.accountName,
+          currencyCode: request.currency,
+          contractCode: this.config.contractCode,
+          customerEmail: request.customerEmail,
+          customerName: request.customerName,
+        }),
+      }
+    );
+
+    const data: MonnifyVirtualAccountResponse = await response.json();
+
+    if (!response.ok || !data.requestSuccessful) {
+      Logger.error("Monnify virtual account creation failed", {
+        reference: request.reference,
+        responseMessage: data.responseMessage,
+      });
+      throw MonnifyProvider.mapError(response.status, data.responseMessage);
+    }
+
+    const account = data.responseBody.accounts[0];
+    return {
+      accountNumber: account.accountNumber,
+      accountName: account.accountName,
+      bankName: account.bankName,
+      bankCode: account.bankCode,
+      reference: data.responseBody.accountReference,
+    };
   }
 
   private static mapError(

@@ -271,4 +271,91 @@ describe("MonnifyProvider", () => {
       expect(result.status).toBe("pending");
     });
   });
+
+  describe("generateVirtualAccount", () => {
+    it("creates a reserved account and returns mapped result", async () => {
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          requestSuccessful: true,
+          responseBody: { accessToken: "tok", expiresIn: 3600 },
+        }),
+      });
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          requestSuccessful: true,
+          responseBody: {
+            accounts: [
+              {
+                accountNumber: "8000012345",
+                accountName: "Vestroll/Jane Doe",
+                bankName: "Wema Bank",
+                bankCode: "035",
+              },
+            ],
+            accountReference: "va-ref-001",
+          },
+        }),
+      });
+
+      const result = await provider.generateVirtualAccount({
+        reference: "va-ref-001",
+        accountName: "Jane Doe",
+        customerEmail: "jane@example.com",
+        customerName: "Jane Doe",
+        currency: "NGN",
+      });
+
+      expect(result).toEqual({
+        accountNumber: "8000012345",
+        accountName: "Vestroll/Jane Doe",
+        bankName: "Wema Bank",
+        bankCode: "035",
+        reference: "va-ref-001",
+      });
+
+      // Verify request body sent to Monnify
+      const vaCall = fetchMock.mock.calls[1];
+      expect(vaCall[0]).toBe(
+        "https://sandbox.monnify.com/api/v1/bank-transfer/reserved-accounts"
+      );
+      const body = JSON.parse(vaCall[1].body);
+      expect(body.contractCode).toBe("TEST_CONTRACT");
+      expect(body.accountReference).toBe("va-ref-001");
+      expect(body.accountName).toBe("Jane Doe");
+      expect(body.currencyCode).toBe("NGN");
+      expect(body.customerEmail).toBe("jane@example.com");
+      expect(body.customerName).toBe("Jane Doe");
+    });
+
+    it("throws BadRequestError when Monnify rejects the request", async () => {
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          requestSuccessful: true,
+          responseBody: { accessToken: "tok", expiresIn: 3600 },
+        }),
+      });
+      fetchMock.mockResolvedValueOnce({
+        ok: false,
+        status: 422,
+        json: async () => ({
+          requestSuccessful: false,
+          responseMessage: "Duplicate account reference",
+          responseBody: null,
+        }),
+      });
+
+      await expect(
+        provider.generateVirtualAccount({
+          reference: "dup-ref",
+          accountName: "Dup",
+          customerEmail: "dup@example.com",
+          customerName: "Dup User",
+          currency: "NGN",
+        })
+      ).rejects.toThrow("Duplicate account reference");
+    });
+  });
 });
