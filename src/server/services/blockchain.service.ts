@@ -72,6 +72,21 @@ export interface SubmissionResult {
   resultXdr?: string;
 }
 
+export interface ContractEvent {
+  id: string;
+  ledger: number;
+  contractId: string;
+  topics: string[];
+  value: any;
+}
+
+export interface GetContractEventsParams {
+  contractId?: string;
+  fromLedger?: number;
+  topics?: string[][];
+  limit?: number;
+}
+
 export class BlockchainService {
   private rpcServer: RpcServer;
   private networkConfig: NetworkConfig;
@@ -397,6 +412,57 @@ export class BlockchainService {
       return health.status === "healthy";
     } catch {
       return false;
+    }
+  }
+
+  /**
+   * Fetches specific diagnostic events from the Stellar RPC.
+   *
+   * @param params - Filtering parameters for events
+   * @returns A promise that resolves to a typed array of ContractEvent
+   *
+   * @example
+   * ```ts
+   * const events = await blockchainService.getContractEvents({
+   *   contractId: "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+   *   fromLedger: 1000
+   * });
+   * ```
+   */
+  async getContractEvents(
+    params: GetContractEventsParams,
+  ): Promise<ContractEvent[]> {
+    try {
+      const response = await this.rpcServer.getEvents({
+        filters: params.contractId
+          ? [
+              {
+                contractIds: [params.contractId],
+                topics: params.topics,
+              },
+            ]
+          : [],
+        startLedger: params.fromLedger,
+        limit: params.limit,
+      });
+
+      return response.events.map((event) => ({
+        id: event.id,
+        ledger: event.ledger,
+        contractId: event.contractId,
+        topics: event.topic.map((t) => scValToNative(t)),
+        value: scValToNative(event.value),
+      }));
+    } catch (error) {
+      Logger.error("Failed to fetch contract events", {
+        params,
+        error: String(error),
+      });
+      throw new Error(
+        `Failed to fetch contract events: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
     }
   }
 }

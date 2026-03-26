@@ -26,6 +26,7 @@ const mockRpcServer = {
   getNetwork: vi.fn(),
   getLatestLedger: vi.fn(),
   getHealth: vi.fn(),
+  getEvents: vi.fn(),
 };
 
 vi.mock("@stellar/stellar-sdk/rpc", () => {
@@ -640,6 +641,70 @@ describe("BlockchainService", () => {
     it("should return false when RPC is unreachable", async () => {
       mockRpcServer.getHealth.mockRejectedValue(new Error("ECONNREFUSED"));
       expect(await service.isHealthy()).toBe(false);
+    });
+  });
+
+  describe("getContractEvents", () => {
+    const contractId = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC";
+
+    it("should fetch and parse contract events", async () => {
+      const mockEvent = {
+        id: "0000000000000000000-0000000000",
+        ledger: 1000,
+        contractId,
+        topic: [nativeToScVal("TRANSFER", { type: "string" })],
+        value: nativeToScVal(100, { type: "u64" }),
+        txHash: "hash-123",
+      };
+
+      mockRpcServer.getEvents.mockResolvedValue({
+        events: [mockEvent],
+        latestLedger: 1005,
+      });
+
+      const events = await service.getContractEvents({
+        contractId,
+        fromLedger: 1000,
+      });
+
+      expect(events).toHaveLength(1);
+      expect(events[0]).toEqual({
+        id: mockEvent.id,
+        ledger: 1000,
+        contractId,
+        topics: ["TRANSFER"],
+        value: BigInt(100),
+      });
+
+      expect(mockRpcServer.getEvents).toHaveBeenCalledWith({
+        filters: [
+          {
+            contractIds: [contractId],
+            topics: undefined,
+          },
+        ],
+        startLedger: 1000,
+        limit: undefined,
+      });
+    });
+
+    it("should handle empty results gracefully", async () => {
+      mockRpcServer.getEvents.mockResolvedValue({
+        events: [],
+        latestLedger: 1005,
+      });
+
+      const events = await service.getContractEvents({ contractId });
+
+      expect(events).toHaveLength(0);
+    });
+
+    it("should re-throw RPC errors with context", async () => {
+      mockRpcServer.getEvents.mockRejectedValue(new Error("RPC Error"));
+
+      await expect(service.getContractEvents({ contractId })).rejects.toThrow(
+        /Failed to fetch contract events: RPC Error/,
+      );
     });
   });
 });
