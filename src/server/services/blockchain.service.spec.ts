@@ -627,20 +627,26 @@ describe("BlockchainService", () => {
   });
 
   describe("getLedgerHealth", () => {
-    it("should return latest ledger and age in seconds", async () => {
-      vi.setSystemTime(new Date("2026-03-26T12:40:00Z"));
+    it("should return the local RPC ledger and how far behind the network tip it is", async () => {
+      mockRpcServer.getLatestLedger.mockResolvedValue({ sequence: 1234 });
 
-      mockFetch.mockResolvedValue({
+      mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({
           _embedded: {
             records: [
               {
-                sequence: "1234",
-                closed_at: "2026-03-26T12:39:15Z",
+                sequence: "1236",
+                closed_at: "2026-03-26T12:40:00Z",
               },
             ],
           },
+        }),
+      }).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          sequence: "1234",
+          closed_at: "2026-03-26T12:39:15Z",
         }),
       });
 
@@ -650,19 +656,55 @@ describe("BlockchainService", () => {
         ledger: 1234,
         ledgerAgeSeconds: 45,
       });
+      expect(mockRpcServer.getLatestLedger).toHaveBeenCalledTimes(1);
       expect(mockFetch).toHaveBeenCalledWith(
         "https://horizon-testnet.stellar.org/ledgers?order=desc&limit=1",
       );
+      expect(mockFetch).toHaveBeenCalledWith(
+        "https://horizon-testnet.stellar.org/ledgers/1234",
+      );
     });
 
-    it("should throw when latest ledger data is missing", async () => {
+    it("should avoid a second Horizon lookup when the RPC is already at the tip", async () => {
+      mockRpcServer.getLatestLedger.mockResolvedValue({ sequence: 1236 });
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          _embedded: {
+            records: [
+              {
+                sequence: "1236",
+                closed_at: "2026-03-26T12:40:00Z",
+              },
+            ],
+          },
+        }),
+      });
+
+      await expect(service.getLedgerHealth()).resolves.toEqual({
+        ledger: 1236,
+        ledgerAgeSeconds: 0,
+      });
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("should throw when the RPC omits the latest ledger sequence", async () => {
+      mockRpcServer.getLatestLedger.mockResolvedValue({});
+
+      await expect(service.getLedgerHealth()).rejects.toThrow(
+        /missing latest ledger sequence/i,
+      );
+    });
+
+    it("should throw when latest network ledger data is missing", async () => {
+      mockRpcServer.getLatestLedger.mockResolvedValue({ sequence: 1234 });
       mockFetch.mockResolvedValue({
         ok: true,
         json: async () => ({ _embedded: { records: [] } }),
       });
 
       await expect(service.getLedgerHealth()).rejects.toThrow(
-        /missing latest ledger data/i,
+        /missing latest network ledger data/i,
       );
     });
   });

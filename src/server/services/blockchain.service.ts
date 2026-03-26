@@ -402,9 +402,15 @@ export class BlockchainService {
     return this.rpcServer.getLatestLedger();
   }
 
-  async getLedgerHealth(): Promise<LedgerHealth> {
+  private async fetchHorizonLedger(params: {
+    path: string;
+    missingDataMessage: string;
+  }): Promise<{
+    sequence: number;
+    closedAtMs: number;
+  }> {
     const response = await fetch(
-      `${this.networkConfig.horizonUrl}/ledgers?order=desc&limit=1`,
+      `${this.networkConfig.horizonUrl}${params.path}`,
     );
 
     if (!response.ok) {
@@ -413,32 +419,68 @@ export class BlockchainService {
       );
     }
 
-    const data = (await response.json()) as {
-      _embedded?: {
-        records?: Array<{
+    const data = (await response.json()) as
+      | {
           sequence: number | string;
           closed_at: string;
-        }>;
-      };
-    };
+        }
+      | {
+          _embedded?: {
+            records?: Array<{
+              sequence: number | string;
+              closed_at: string;
+            }>;
+          };
+        };
 
-    const latestLedger = data._embedded?.records?.[0];
+    const ledgerRecord =
+      "_embedded" in data ? data._embedded?.records?.[0] : data;
 
-    if (!latestLedger?.closed_at || latestLedger.sequence == null) {
-      throw new Error("Horizon response missing latest ledger data");
+    if (!ledgerRecord?.closed_at || ledgerRecord.sequence == null) {
+      throw new Error(params.missingDataMessage);
     }
 
-    const closedAtMs = Date.parse(latestLedger.closed_at);
+    const closedAtMs = Date.parse(ledgerRecord.closed_at);
 
     if (Number.isNaN(closedAtMs)) {
       throw new Error("Horizon returned an invalid ledger close time");
     }
 
     return {
-      ledger: Number(latestLedger.sequence),
+      sequence: Number(ledgerRecord.sequence),
+      closedAtMs,
+    };
+  }
+
+  async getLedgerHealth(): Promise<LedgerHealth> {
+    const rpcLatestLedger = await this.rpcServer.getLatestLedger();
+    const localLedgerSequence = Number(rpcLatestLedger?.sequence);
+
+    if (Number.isNaN(localLedgerSequence)) {
+      throw new Error("RPC response missing latest ledger sequence");
+    }
+
+    const networkTipLedger = await this.fetchHorizonLedger({
+      path: "/ledgers?order=desc&limit=1",
+      missingDataMessage: "Horizon response missing latest network ledger data",
+    });
+
+    const localLedger =
+      networkTipLedger.sequence === localLedgerSequence
+        ? networkTipLedger
+        : await this.fetchHorizonLedger({
+            path: `/ledgers/${localLedgerSequence}`,
+            missingDataMessage:
+              "Horizon response missing local ledger data",
+          });
+
+    return {
+      ledger: localLedgerSequence,
       ledgerAgeSeconds: Math.max(
         0,
-        Math.floor((Date.now() - closedAtMs) / 1000),
+        Math.floor(
+          (networkTipLedger.closedAtMs - localLedger.closedAtMs) / 1000,
+        ),
       ),
     };
   }
