@@ -130,8 +130,8 @@ export default function AddressBook() {
 
   return (
     <>
-      <section className="rounded-xl border border-[#e5e7eb] bg-white shadow-sm">
-        <div className="block md:flex items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-[#eef2f7]">
+      <section className="rounded-xl border border-[#e5e7eb] bg-white shadow-sm px-4 sm:px-6 py-6">
+        <div className="block md:flex items-center justify-between gap-4 py-4 border-b border-[#eef2f7]">
           <div className="block items-center justify-between gap-4">
             <div>
               <h2 className="text-base sm:text-lg font-semibold text-[#1f2937]">
@@ -144,7 +144,7 @@ export default function AddressBook() {
         {/* Conditional rendering based on whether addresses exist */}
         {addresses.length === 0 ? (
           // Empty state
-          <div className="px-4 sm:px-6 py-10 sm:py-16">
+          <div className="py-10 sm:py-16">
             <div className="mx-auto flex max-w-md flex-col items-center text-center">
               <Image
                 src="/scope.png"
@@ -163,7 +163,7 @@ export default function AddressBook() {
           </div>
         ) : (
           // Addresses list
-          <div className="p-6">
+          <div>
             <div className="grid gap-6 md:grid-cols-2">
               {addresses.map((address) => (
                 <div
