@@ -19,6 +19,7 @@ import {
 } from "@stellar/stellar-sdk";
 import { Api, Server as RpcServer } from "@stellar/stellar-sdk/rpc";
 import { Logger } from "./logger.service";
+import { db, signerAudits } from "../db";
 
 type NetworkName = "testnet" | "mainnet" | "futurenet";
 
@@ -262,9 +263,24 @@ export class BlockchainService {
     const tx = TransactionBuilder.fromXDR(
       xdrEnvelope,
       this.networkConfig.networkPassphrase,
-    );
+    ) as Transaction;
     const keypair = Keypair.fromSecret(signerSecret);
     tx.sign(keypair);
+
+    const hash = tx.hash().toString("hex");
+    db.insert(signerAudits)
+      .values({
+        signerPublicKey: keypair.publicKey(),
+        transactionHash: hash,
+      })
+      .catch((error) => {
+        Logger.error("Failed to record signer audit trail", {
+          error: String(error),
+          transactionHash: hash,
+          signerPublicKey: keypair.publicKey(),
+        });
+      });
+
     return tx.toXDR();
   }
 

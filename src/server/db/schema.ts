@@ -287,9 +287,6 @@ export const employees = pgTable(
     type: employeeTypeEnum("type").notNull(),
     status: employeeStatusEnum("status").default("Active").notNull(),
     avatarUrl: varchar("avatar_url", { length: 512 }),
-    bankName: varchar("bank_name", { length: 255 }),
-    accountNumber: varchar("account_number", { length: 20 }),
-    accountName: varchar("account_name", { length: 255 }),
     userId: uuid("user_id").references(() => users.id, {
       onDelete: "set null",
     }),
@@ -624,3 +621,13 @@ export const transactionCache = pgTable("transaction_cache", {
   resultJson: text("result_json").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
 });
+
+export const signerAudits = pgTable("signer_audits", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  signerPublicKey: varchar("signer_public_key", { length: 56 }).notNull(),
+  transactionHash: varchar("transaction_hash", { length: 64 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("signer_audits_transaction_hash_idx").on(table.transactionHash),
+]);
+
