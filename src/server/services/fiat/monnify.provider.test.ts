@@ -273,6 +273,50 @@ describe("MonnifyProvider", () => {
   });
 
   describe("generateVirtualAccount", () => {
+    it("supports generating a virtual account from an org id", async () => {
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          requestSuccessful: true,
+          responseBody: { accessToken: "tok", expiresIn: 3600 },
+        }),
+      });
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          requestSuccessful: true,
+          responseBody: {
+            accounts: [
+              {
+                accountNumber: "8000012345",
+                accountName: "Vestroll/Org org-123",
+                bankName: "Wema Bank",
+                bankCode: "035",
+              },
+            ],
+            accountReference: "org-org-123",
+          },
+        }),
+      });
+
+      const result = await provider.generateVirtualAccount("org-123");
+
+      expect(result).toEqual({
+        accountNumber: "8000012345",
+        accountName: "Vestroll/Org org-123",
+        bankName: "Wema Bank",
+        bankCode: "035",
+        reference: "org-org-123",
+      });
+
+      const vaCall = fetchMock.mock.calls[1];
+      const body = JSON.parse(vaCall[1].body);
+      expect(body.accountReference).toBe("org-org-123");
+      expect(body.accountName).toBe("Org org-123");
+      expect(body.customerEmail).toBe("org-org-123@vestroll.local");
+      expect(body.customerName).toBe("Organization org-123");
+    });
+
     it("creates a reserved account and returns mapped result", async () => {
       fetchMock.mockResolvedValueOnce({
         ok: true,
@@ -356,6 +400,57 @@ describe("MonnifyProvider", () => {
           currency: "NGN",
         })
       ).rejects.toThrow("Duplicate account reference");
+    });
+  });
+
+  describe("verifyTransaction", () => {
+    it("verifies a transaction and returns the shared result shape", async () => {
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          requestSuccessful: true,
+          responseBody: { accessToken: "tok", expiresIn: 3600 },
+        }),
+      });
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          requestSuccessful: true,
+          responseBody: {
+            paymentReference: "pay-ref-001",
+            transactionReference: "MNFY_TX_001",
+            paymentStatus: "PAID",
+            amountPaid: 15000,
+            currencyCode: "NGN",
+            paidOn: "2026-03-27T10:00:00.000Z",
+          },
+        }),
+      });
+
+      const result = await provider.verifyTransaction("pay-ref-001");
+
+      expect(result).toEqual({
+        reference: "pay-ref-001",
+        providerReference: "MNFY_TX_001",
+        status: "successful",
+        amount: 15000,
+        currency: "NGN",
+        paidAt: "2026-03-27T10:00:00.000Z",
+        raw: {
+          paymentReference: "pay-ref-001",
+          transactionReference: "MNFY_TX_001",
+          paymentStatus: "PAID",
+          amountPaid: 15000,
+          currencyCode: "NGN",
+          paidOn: "2026-03-27T10:00:00.000Z",
+        },
+      });
+
+      const verifyCall = fetchMock.mock.calls[1];
+      expect(verifyCall[0]).toBe(
+        "https://sandbox.monnify.com/api/v2/transactions/pay-ref-001"
+      );
+      expect(verifyCall[1].method).toBe("GET");
     });
   });
 });

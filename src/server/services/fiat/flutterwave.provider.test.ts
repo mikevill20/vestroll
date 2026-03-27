@@ -186,6 +186,44 @@ describe("FlutterwaveProvider", () => {
   });
 
   describe("generateVirtualAccount", () => {
+    it("supports generating a virtual account from an org id", async () => {
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          status: "success",
+          message: "Virtual account created",
+          data: {
+            account_number: "8000012345",
+            bank_name: "Wema Bank",
+            order_ref: "org-org-123",
+          },
+        }),
+      });
+
+      const result = await provider.generateVirtualAccount("org-123");
+
+      expect(result).toEqual({
+        accountNumber: "8000012345",
+        accountName: "Org org-123",
+        bankName: "Wema Bank",
+        bankCode: "",
+        reference: "org-org-123",
+      });
+
+      const [url, options] = fetchMock.mock.calls[0];
+      expect(url).toBe(
+        "https://api.flutterwave.com/v3/virtual-account-numbers",
+      );
+      const body = JSON.parse(options.body);
+      expect(body).toEqual({
+        email: "org-org-123@vestroll.local",
+        is_permanent: true,
+        tx_ref: "org-org-123",
+        amount: 0,
+        currency: "NGN",
+      });
+    });
+
     it("creates a virtual account and returns mapped result", async () => {
       fetchMock.mockResolvedValueOnce({
         ok: true,
@@ -253,6 +291,51 @@ describe("FlutterwaveProvider", () => {
           currency: "NGN",
         }),
       ).rejects.toThrow("Duplicate tx_ref");
+    });
+  });
+
+  describe("verifyTransaction", () => {
+    it("verifies a transaction and returns the shared result shape", async () => {
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          status: "success",
+          message: "Verification successful",
+          data: {
+            id: 7788,
+            tx_ref: "tx-ref-001",
+            status: "successful",
+            amount: 25000,
+            currency: "NGN",
+            created_at: "2026-03-27T09:30:00.000Z",
+          },
+        }),
+      });
+
+      const result = await provider.verifyTransaction("tx-ref-001");
+
+      expect(result).toEqual({
+        reference: "tx-ref-001",
+        providerReference: "7788",
+        status: "successful",
+        amount: 25000,
+        currency: "NGN",
+        paidAt: "2026-03-27T09:30:00.000Z",
+        raw: {
+          id: 7788,
+          tx_ref: "tx-ref-001",
+          status: "successful",
+          amount: 25000,
+          currency: "NGN",
+          created_at: "2026-03-27T09:30:00.000Z",
+        },
+      });
+
+      const [url, options] = fetchMock.mock.calls[0];
+      expect(url).toBe(
+        "https://api.flutterwave.com/v3/transactions/verify_by_reference?tx_ref=tx-ref-001",
+      );
+      expect(options.method).toBe("GET");
     });
   });
 

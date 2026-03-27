@@ -7,8 +7,9 @@ import {
 } from "@/server/utils/errors";
 import type {
   PaymentProvider,
-  DisburseRequest,
+  DisburseParams,
   DisburseResult,
+  VerifyTransactionResult,
   VirtualAccountRequest,
   VirtualAccountResult,
 } from "./payment-provider.interface";
@@ -42,7 +43,7 @@ export class FlutterwaveProvider implements PaymentProvider {
     this.config = config;
   }
 
-  async disburse(request: DisburseRequest): Promise<DisburseResult> {
+  async disburse(request: DisburseParams): Promise<DisburseResult> {
     const response = await fetch(
       `${this.config.baseUrl}/v3/transfers`,
       {
@@ -83,9 +84,17 @@ export class FlutterwaveProvider implements PaymentProvider {
     };
   }
 
+  async generateVirtualAccount(orgId: string): Promise<VirtualAccountResult>;
   async generateVirtualAccount(
     request: VirtualAccountRequest,
+  ): Promise<VirtualAccountResult>;
+  async generateVirtualAccount(
+    orgIdOrRequest: string | VirtualAccountRequest,
   ): Promise<VirtualAccountResult> {
+    const request =
+      typeof orgIdOrRequest === "string"
+        ? FlutterwaveProvider.buildVirtualAccountRequest(orgIdOrRequest)
+        : orgIdOrRequest;
     const response = await fetch(
       `${this.config.baseUrl}/v3/virtual-account-numbers`,
       {
@@ -121,6 +130,65 @@ export class FlutterwaveProvider implements PaymentProvider {
       bankCode: "",
       reference: data.data.order_ref,
     };
+  }
+
+  async verifyTransaction(
+    reference: string,
+  ): Promise<VerifyTransactionResult> {
+    const response = await fetch(
+      `${this.config.baseUrl}/v3/transactions/verify_by_reference?tx_ref=${encodeURIComponent(reference)}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.config.secretKey}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    const data = await safeJson(response);
+
+    if (!response.ok || data.status !== "success") {
+      Logger.error("Flutterwave transaction verification failed", {
+        reference,
+        message: data.message,
+      });
+      throw FlutterwaveProvider.mapError(response.status, data.message);
+    }
+
+    return {
+      reference: data.data.tx_ref ?? reference,
+      providerReference: String(data.data.id ?? reference),
+      status: FlutterwaveProvider.mapVerificationStatus(data.data.status),
+      amount: Number(data.data.amount ?? 0),
+      currency: data.data.currency ?? "NGN",
+      paidAt: data.data.created_at,
+      raw: data.data,
+    };
+  }
+
+  private static buildVirtualAccountRequest(
+    orgId: string,
+  ): VirtualAccountRequest {
+    return {
+      reference: `org-${orgId}`,
+      accountName: `Org ${orgId}`,
+      customerEmail: `org-${orgId}@vestroll.local`,
+      customerName: `Organization ${orgId}`,
+      currency: "NGN",
+    };
+  }
+
+  private static mapVerificationStatus(
+    status?: string,
+  ): VerifyTransactionResult["status"] {
+    if (status === "successful" || status === "SUCCESSFUL") {
+      return "successful";
+    }
+    if (status === "failed" || status === "FAILED") {
+      return "failed";
+    }
+    return "pending";
   }
 
   private static mapError(httpStatus: number, message?: string): AppError {

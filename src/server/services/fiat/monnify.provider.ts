@@ -7,8 +7,9 @@ import {
 } from "@/server/utils/errors";
 import type {
   PaymentProvider,
-  DisburseRequest,
+  DisburseParams,
   DisburseResult,
+  VerifyTransactionResult,
   VirtualAccountRequest,
   VirtualAccountResult,
 } from "./payment-provider.interface";
@@ -51,6 +52,22 @@ interface MonnifyDisburseResponse {
     transactionReference: string;
     status: string;
     totalFee: number;
+  };
+}
+
+interface MonnifyVerifyTransactionResponse {
+  requestSuccessful: boolean;
+  responseMessage?: string;
+  responseBody: {
+    amountPaid?: number;
+    amount?: number;
+    paymentReference?: string;
+    transactionReference?: string;
+    paymentStatus?: string;
+    status?: string;
+    paidOn?: string;
+    completedOn?: string;
+    currencyCode?: "NGN";
   };
 }
 
@@ -107,7 +124,7 @@ export class MonnifyProvider implements PaymentProvider {
     return this.accessToken;
   }
 
-  async disburse(request: DisburseRequest): Promise<DisburseResult> {
+  async disburse(request: DisburseParams): Promise<DisburseResult> {
     const token = await this.authenticate();
 
     const response = await fetch(
@@ -151,9 +168,17 @@ export class MonnifyProvider implements PaymentProvider {
     };
   }
 
+  async generateVirtualAccount(orgId: string): Promise<VirtualAccountResult>;
   async generateVirtualAccount(
     request: VirtualAccountRequest
+  ): Promise<VirtualAccountResult>;
+  async generateVirtualAccount(
+    orgIdOrRequest: string | VirtualAccountRequest
   ): Promise<VirtualAccountResult> {
+    const request =
+      typeof orgIdOrRequest === "string"
+        ? MonnifyProvider.buildVirtualAccountRequest(orgIdOrRequest)
+        : orgIdOrRequest;
     const token = await this.authenticate();
 
     const response = await fetch(
@@ -193,6 +218,70 @@ export class MonnifyProvider implements PaymentProvider {
       bankCode: account.bankCode,
       reference: data.responseBody.accountReference,
     };
+  }
+
+  async verifyTransaction(
+    reference: string
+  ): Promise<VerifyTransactionResult> {
+    const token = await this.authenticate();
+
+    const response = await fetch(
+      `${this.config.baseUrl}/api/v2/transactions/${reference}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const data: MonnifyVerifyTransactionResponse = await response.json();
+
+    if (!response.ok || !data.requestSuccessful) {
+      Logger.error("Monnify transaction verification failed", {
+        reference,
+        responseMessage: data.responseMessage,
+      });
+      throw MonnifyProvider.mapError(response.status, data.responseMessage);
+    }
+
+    const body = data.responseBody;
+    const status = body.paymentStatus ?? body.status ?? "PENDING";
+
+    return {
+      reference: body.paymentReference ?? reference,
+      providerReference: body.transactionReference ?? reference,
+      status: MonnifyProvider.mapVerificationStatus(status),
+      amount: body.amountPaid ?? body.amount ?? 0,
+      currency: body.currencyCode ?? "NGN",
+      paidAt: body.paidOn ?? body.completedOn,
+      raw: body,
+    };
+  }
+
+  private static buildVirtualAccountRequest(
+    orgId: string
+  ): VirtualAccountRequest {
+    return {
+      reference: `org-${orgId}`,
+      accountName: `Org ${orgId}`,
+      customerEmail: `org-${orgId}@vestroll.local`,
+      customerName: `Organization ${orgId}`,
+      currency: "NGN",
+    };
+  }
+
+  private static mapVerificationStatus(
+    status: string
+  ): VerifyTransactionResult["status"] {
+    if (status === "PAID" || status === "SUCCESS") {
+      return "successful";
+    }
+    if (status === "FAILED" || status === "CANCELLED") {
+      return "failed";
+    }
+    return "pending";
   }
 
   private static mapError(

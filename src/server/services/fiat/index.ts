@@ -1,9 +1,11 @@
 export type {
   PaymentProvider,
+  DisburseParams,
   DisburseRequest,
   DisburseResult,
   VirtualAccountRequest,
   VirtualAccountResult,
+  VerifyTransactionResult,
 } from "./payment-provider.interface";
 
 export { MonnifyProvider } from "./monnify.provider";
