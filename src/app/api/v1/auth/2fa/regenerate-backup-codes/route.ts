@@ -13,7 +13,7 @@ import { ZodError } from "zod";
  *   post:
  *     summary: Regenerate backup codes
  *     description: Generate a new set of backup codes. Requires TOTP verification.
- *     tags: [2FA]
+ *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
  *     requestBody:

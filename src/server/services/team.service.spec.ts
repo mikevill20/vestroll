@@ -38,14 +38,15 @@ describe("TeamService", () => {
             where: vi.fn().mockReturnThis(),
             limit: vi.fn().mockResolvedValue([{ id: "existing" }]),
         };
-        (db.select as any).mockReturnValue(selectMock);
+        vi.mocked(db.select).mockReturnValue(selectMock as never);
 
         try {
             await TeamService.addEmployee({ email: "test@test.com" });
             expect.fail("Should have thrown error");
-        } catch (err: any) {
-            expect(err.message).toBe("Email already registered");
-            expect(err.status).toBe(409);
+        } catch (err: unknown) {
+            expect(err).toBeInstanceOf(Error);
+            expect((err as Error).message).toBe("Email already registered");
+            expect(err).toMatchObject({ status: 409 });
         }
     });
 
@@ -55,14 +56,14 @@ describe("TeamService", () => {
             where: vi.fn().mockReturnThis(),
             limit: vi.fn().mockResolvedValue([]),
         };
-        (db.select as any).mockReturnValue(selectMock);
+        vi.mocked(db.select).mockReturnValue(selectMock as never);
 
         const date = new Date();
         const insertMock = {
             values: vi.fn().mockReturnThis(),
             returning: vi.fn().mockResolvedValue([{ id: "new-id", status: "pending_verification", invitedAt: date }]),
         };
-        (db.insert as any).mockReturnValue(insertMock);
+        vi.mocked(db.insert).mockReturnValue(insertMock as never);
 
         const user = await TeamService.addEmployee({ email: "test@test.com" });
         expect(user.id).toBe("new-id");
@@ -86,7 +87,7 @@ describe("TeamService", () => {
             from: vi.fn().mockReturnThis(),
             where: vi.fn().mockResolvedValue(mockExpenses),
         };
-        (db.select as any).mockReturnValue(selectMock);
+        vi.mocked(db.select).mockReturnValue(selectMock as never);
 
         const expenses = await TeamService.getExpenses("org-123");
         expect(expenses).toEqual(mockExpenses);

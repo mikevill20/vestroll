@@ -10,7 +10,7 @@ import { TimeOffService } from "@/server/services/time-off.service";
  *   get:
  *     summary: Get all time-off requests
  *     description: Retrieve all leave requests (Sick, Vacation, etc.) for the organization.
- *     tags: [Team]
+ *     tags: [Payroll]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -18,6 +18,10 @@ import { TimeOffService } from "@/server/services/time-off.service";
  *         description: Time-off requests retrieved successfully
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  *       403:
  *         description: User not associated with an organization
  */

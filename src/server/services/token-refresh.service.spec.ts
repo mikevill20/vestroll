@@ -45,15 +45,15 @@ describe("TokenRefreshService", () => {
     beforeEach(() => {
         vi.clearAllMocks();
         mockChain.limit.mockReset();
-        (JWTVerificationService.verify as any).mockResolvedValue({
+        vi.mocked(JWTVerificationService.verify).mockResolvedValue({
             sessionId: mockSessionId,
             exp: Math.floor(Date.now() / 1000) + 3600
-        });
+        } as never);
 
-        (PasswordVerificationService.verify as any).mockResolvedValue(true);
-        (PasswordVerificationService.hash as any).mockResolvedValue("new_hashed_token");
-        (JWTTokenService.generateAccessToken as any).mockResolvedValue("new_access_token");
-        (JWTTokenService.generateRotatedRefreshToken as any).mockResolvedValue("new_refresh_token");
+        vi.mocked(PasswordVerificationService.verify).mockResolvedValue(true);
+        vi.mocked(PasswordVerificationService.hash).mockResolvedValue("new_hashed_token");
+        vi.mocked(JWTTokenService.generateAccessToken).mockResolvedValue("new_access_token");
+        vi.mocked(JWTTokenService.generateRotatedRefreshToken).mockResolvedValue("new_refresh_token");
     });
 
     it("should successfully refresh tokens", async () => {
@@ -97,7 +97,7 @@ describe("TokenRefreshService", () => {
                 expiresAt: new Date(Date.now() + 100000)
             }
         ]);
-        (PasswordVerificationService.verify as any).mockResolvedValue(false);
+        vi.mocked(PasswordVerificationService.verify).mockResolvedValue(false);
 
         await expect(TokenRefreshService.refresh(mockRefreshToken)).rejects.toThrow(TokenSessionMismatchError);
         expect(mockDb.delete).toHaveBeenCalled();
@@ -112,7 +112,7 @@ describe("TokenRefreshService", () => {
                 expiresAt: new Date(Date.now() - 1000)
             }
         ]);
-        (PasswordVerificationService.verify as any).mockResolvedValue(true);
+        vi.mocked(PasswordVerificationService.verify).mockResolvedValue(true);
 
         await expect(TokenRefreshService.refresh(mockRefreshToken)).rejects.toThrow(ExpiredTokenError);
         expect(mockDb.delete).toHaveBeenCalled();

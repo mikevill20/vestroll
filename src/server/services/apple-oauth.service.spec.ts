@@ -19,7 +19,7 @@ vi.mock("jose", () => ({
     },
     JWTClaimValidationFailed: class extends Error {
       claim: string;
-      constructor(message: string, _payload: any, claim: string) {
+      constructor(message: string, _payload: unknown, claim: string) {
         super(message);
         this.claim = claim;
       }
@@ -30,11 +30,12 @@ vi.mock("jose", () => ({
 describe("AppleOAuthService", () => {
   const mockIdToken = "mock.id.token";
   const mockClientId = "com.example.app";
+  const mockedJwkSet = (() => {}) as ReturnType<typeof jose.createRemoteJWKSet>;
 
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.APPLE_CLIENT_ID = mockClientId;
-    (jose.createRemoteJWKSet as any).mockReturnValue(() => {});
+    vi.mocked(jose.createRemoteJWKSet).mockReturnValue(mockedJwkSet);
   });
 
   it("should verify a valid token and return user info", async () => {
@@ -43,7 +44,7 @@ describe("AppleOAuthService", () => {
       email: "user@example.com",
     };
 
-    (jose.jwtVerify as any).mockResolvedValue({ payload: mockPayload });
+    vi.mocked(jose.jwtVerify).mockResolvedValue({ payload: mockPayload } as never);
 
     const result = await AppleOAuthService.verifyIdToken(mockIdToken);
 
@@ -64,8 +65,8 @@ describe("AppleOAuthService", () => {
   });
 
   it("should throw TokenExpiredError when token is expired", async () => {
-    (jose.jwtVerify as any).mockRejectedValue(
-      new jose.errors.JWTExpired("Token has expired", {} as any),
+    vi.mocked(jose.jwtVerify).mockRejectedValue(
+      new jose.errors.JWTExpired("Token has expired"),
     );
 
     await expect(AppleOAuthService.verifyIdToken(mockIdToken)).rejects.toThrow(
@@ -74,10 +75,10 @@ describe("AppleOAuthService", () => {
   });
 
   it("should throw AudienceMismatchError when audience mismatch", async () => {
-    (jose.jwtVerify as any).mockRejectedValue(
+    vi.mocked(jose.jwtVerify).mockRejectedValue(
       new jose.errors.JWTClaimValidationFailed(
         "aud mismatch",
-        {} as any,
+        {},
         "aud",
       ),
     );
@@ -88,10 +89,10 @@ describe("AppleOAuthService", () => {
   });
 
   it("should throw IssuerMismatchError when issuer mismatch", async () => {
-    (jose.jwtVerify as any).mockRejectedValue(
+    vi.mocked(jose.jwtVerify).mockRejectedValue(
       new jose.errors.JWTClaimValidationFailed(
         "iss mismatch",
-        {} as any,
+        {},
         "iss",
       ),
     );
@@ -102,7 +103,7 @@ describe("AppleOAuthService", () => {
   });
 
   it("should throw InvalidTokenError when sub or email is missing", async () => {
-    (jose.jwtVerify as any).mockResolvedValue({ payload: { sub: "123" } });
+    vi.mocked(jose.jwtVerify).mockResolvedValue({ payload: { sub: "123" } } as never);
 
     await expect(AppleOAuthService.verifyIdToken(mockIdToken)).rejects.toThrow(
       InvalidTokenError,

@@ -45,7 +45,7 @@ function validateLogoUrl(logoUrl: string): void {
  *   patch:
  *     summary: Update organization logo
  *     description: Saves the logo URL to the organization's company profile after client uploads to S3
- *     tags: [Organizations]
+ *     tags: [General]
  *     security:
  *       - bearerAuth: []
  *     requestBody:

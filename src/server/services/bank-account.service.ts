@@ -1,7 +1,8 @@
 import { db } from "../db";
 import { employees } from "../db/schema";
 import { eq } from "drizzle-orm";
-import { Logger } from "@/server/services/logger.service";
+import { Logger } from "./logger.service";
+
 export interface BankValidationResult {
   isValid: boolean;
   bankName?: string;
@@ -25,6 +26,8 @@ export interface AccountVerificationResult {
   };
   error?: string;
 }
+
+type EmployeeAccountUpdate = Partial<typeof employees.$inferInsert>;
 
 class BankAccountService {
   // Mock bank validation API - in production, this would integrate with real banking APIs
@@ -95,7 +98,7 @@ class BankAccountService {
 
       return result;
     } catch (error) {
-      Logger.error("Bank Validation Error", { error });
+      Logger.error("[Bank Validation Error]", { error: String(error) });
       return {
         isValid: false,
         error: "Bank validation service unavailable",
@@ -105,7 +108,10 @@ class BankAccountService {
   }
 
   // Update employee account details
-  async updateEmployeeAccount(employeeId: string, accountData: any): Promise<void> {
+  async updateEmployeeAccount(
+    employeeId: string,
+    accountData: EmployeeAccountUpdate,
+  ): Promise<void> {
     try {
       await db
         .update(employees)
@@ -115,7 +121,7 @@ class BankAccountService {
         })
         .where(eq(employees.id, employeeId));
     } catch (error) {
-      Logger.error("Update Employee Account Error", { error });
+      Logger.error("[Update Employee Account Error]", { error: String(error) });
       throw new Error("Failed to update employee account details");
     }
   }
@@ -188,7 +194,7 @@ class BankAccountService {
         },
       };
     } catch (error) {
-      Logger.error("Verify Employee Account Error", { error });
+      Logger.error("[Verify Employee Account Error]", { error: String(error) });
       return {
         isValid: false,
         isVerified: false,
@@ -223,7 +229,7 @@ class BankAccountService {
 
       return employee[0] || null;
     } catch (error) {
-      Logger.error("Get Employee Account Error", { error });
+      Logger.error("[Get Employee Account Error]", { error: String(error) });
       throw new Error("Failed to retrieve employee account details");
     }
   }
@@ -302,6 +308,7 @@ class BankAccountService {
       "405000": "HSBC Bank",
       "600000": "Lloyds Bank",
       "770000": "Lloyds Bank",
+      "331": "Lloyds Bank",
     };
     return sortCodeBanks[sortCode] || "Unknown Bank";
   }

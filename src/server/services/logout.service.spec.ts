@@ -33,10 +33,10 @@ describe("LogoutService", () => {
     it("should successfully logout with valid token and sessionId", async () => {
         const mockToken = "valid.token.here";
         const mockPayload = { sessionId: "session-123" };
-        (JWTTokenService.verifyToken as any).mockResolvedValue(mockPayload);
+        vi.mocked(JWTTokenService.verifyToken).mockResolvedValue(mockPayload);
 
         const mockWhere = vi.fn();
-        (db.delete as any).mockReturnValue({ where: mockWhere });
+        vi.mocked(db.delete).mockReturnValue({ where: mockWhere } as never);
 
         await LogoutService.logout(mockToken);
 
@@ -54,7 +54,7 @@ describe("LogoutService", () => {
 
     it("should return success (idempotent) if token is invalid/expired", async () => {
         const mockToken = "invalid.token";
-        (JWTTokenService.verifyToken as any).mockResolvedValue(null);
+        vi.mocked(JWTTokenService.verifyToken).mockResolvedValue(null);
 
         await LogoutService.logout(mockToken);
 
@@ -65,7 +65,7 @@ describe("LogoutService", () => {
 
     it("should do nothing if payload lacks sessionId", async () => {
         const mockToken = "valid.token.no.session";
-        (JWTTokenService.verifyToken as any).mockResolvedValue({ userId: "user-1" });
+        vi.mocked(JWTTokenService.verifyToken).mockResolvedValue({ userId: "user-1" });
 
         await LogoutService.logout(mockToken);
 

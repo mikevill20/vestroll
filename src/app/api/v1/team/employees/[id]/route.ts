@@ -14,7 +14,9 @@ const UUID_REGEX =
  *   get:
  *     summary: Get single employee profile
  *     description: Retrieve a comprehensive profile for a specific team member, including contract details and payment history (derived from timesheets). Verifies the employee belongs to the requester's organization.
- *     tags: [Team]
+ *     tags: [Payroll]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -29,6 +31,10 @@ const UUID_REGEX =
  *         description: Not found
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  */
 export async function GET(
   request: NextRequest,
@@ -91,7 +97,7 @@ export async function GET(
             status: contract.status,
           }
         : null,
-      history: paymentHistory.map((p) => ({
+      history: paymentHistory.map((p: any) => ({
         date: p.submittedAt,
         amount: p.totalAmount,
         rate: p.rate,

@@ -11,20 +11,20 @@ describe("JWTService", () => {
     });
 
     describe("generateAccessToken", () => {
-        it("should generate a valid access token", () => {
+        it("should generate a valid access token", async () => {
             const payload = {
                 userId: "123e4567-e89b-12d3-a456-426614174000",
                 email: "test@example.com",
             };
 
-            const token = JWTService.generateAccessToken(payload);
+            const token = await JWTService.generateAccessToken(payload);
 
             expect(token).toBeDefined();
             expect(typeof token).toBe("string");
             expect(token.split(".").length).toBe(3);
         });
 
-        it("should throw error if JWT_ACCESS_SECRET is not configured", () => {
+        it("should throw error if JWT_ACCESS_SECRET is not configured", async () => {
             delete process.env.JWT_ACCESS_SECRET;
 
             const payload = {
@@ -32,27 +32,27 @@ describe("JWTService", () => {
                 email: "test@example.com",
             };
 
-            expect(() => JWTService.generateAccessToken(payload)).toThrow(
+            await expect(JWTService.generateAccessToken(payload)).rejects.toThrow(
                 "JWT_ACCESS_SECRET is not configured"
             );
         });
     });
 
     describe("generateRefreshToken", () => {
-        it("should generate a valid refresh token", () => {
+        it("should generate a valid refresh token", async () => {
             const payload = {
                 userId: "123e4567-e89b-12d3-a456-426614174000",
                 email: "test@example.com",
             };
 
-            const token = JWTService.generateRefreshToken(payload);
+            const token = await JWTService.generateRefreshToken(payload);
 
             expect(token).toBeDefined();
             expect(typeof token).toBe("string");
             expect(token.split(".").length).toBe(3);
         });
 
-        it("should throw error if JWT_REFRESH_SECRET is not configured", () => {
+        it("should throw error if JWT_REFRESH_SECRET is not configured", async () => {
             delete process.env.JWT_REFRESH_SECRET;
 
             const payload = {
@@ -60,35 +60,35 @@ describe("JWTService", () => {
                 email: "test@example.com",
             };
 
-            expect(() => JWTService.generateRefreshToken(payload)).toThrow(
+            await expect(JWTService.generateRefreshToken(payload)).rejects.toThrow(
                 "JWT_REFRESH_SECRET is not configured"
             );
         });
     });
 
     describe("verifyAccessToken", () => {
-        it("should verify and decode a valid access token", () => {
+        it("should verify and decode a valid access token", async () => {
             const payload = {
                 userId: "123e4567-e89b-12d3-a456-426614174000",
                 email: "test@example.com",
             };
 
-            const token = JWTService.generateAccessToken(payload);
-            const decoded = JWTService.verifyAccessToken(token);
+            const token = await JWTService.generateAccessToken(payload);
+            const decoded = await JWTService.verifyAccessToken(token);
 
             expect(decoded.userId).toBe(payload.userId);
             expect(decoded.email).toBe(payload.email);
         });
 
-        it("should throw InvalidTokenError for invalid token", () => {
+        it("should throw InvalidTokenError for invalid token", async () => {
             const invalidToken = "invalid.token.here";
 
-            expect(() => JWTService.verifyAccessToken(invalidToken)).toThrow(
+            await expect(JWTService.verifyAccessToken(invalidToken)).rejects.toThrow(
                 InvalidTokenError
             );
         });
 
-        it("should throw TokenExpiredError for expired token", () => {
+        it("should throw TokenExpiredError for expired token", async () => {
             process.env.JWT_ACCESS_EXPIRATION = "1ms";
 
             const payload = {
@@ -96,34 +96,35 @@ describe("JWTService", () => {
                 email: "test@example.com",
             };
 
-            const token = JWTService.generateAccessToken(payload);
+            const token = await JWTService.generateAccessToken(payload);
 
-            setTimeout(() => {
-                expect(() => JWTService.verifyAccessToken(token)).toThrow(
-                    TokenExpiredError
-                );
-            }, 10);
+            // Wait for expiration
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            await expect(JWTService.verifyAccessToken(token)).rejects.toThrow(
+                TokenExpiredError
+            );
         });
     });
 
     describe("verifyRefreshToken", () => {
-        it("should verify and decode a valid refresh token", () => {
+        it("should verify and decode a valid refresh token", async () => {
             const payload = {
                 userId: "123e4567-e89b-12d3-a456-426614174000",
                 email: "test@example.com",
             };
 
-            const token = JWTService.generateRefreshToken(payload);
-            const decoded = JWTService.verifyRefreshToken(token);
+            const token = await JWTService.generateRefreshToken(payload);
+            const decoded = await JWTService.verifyRefreshToken(token);
 
             expect(decoded.userId).toBe(payload.userId);
             expect(decoded.email).toBe(payload.email);
         });
 
-        it("should throw InvalidTokenError for invalid token", () => {
+        it("should throw InvalidTokenError for invalid token", async () => {
             const invalidToken = "invalid.token.here";
 
-            expect(() => JWTService.verifyRefreshToken(invalidToken)).toThrow(
+            await expect(JWTService.verifyRefreshToken(invalidToken)).rejects.toThrow(
                 InvalidTokenError
             );
         });

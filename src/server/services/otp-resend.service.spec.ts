@@ -62,7 +62,7 @@ describe("OTPResendService", () => {
       updatedAt: new Date(),
     };
 
-    vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as any);
+    vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as MockUser);
 
     await expect(
       OTPResendService.resendOTP("user@example.com")
@@ -96,7 +96,7 @@ describe("OTPResendService", () => {
 
     const retryAfter = new Date(Date.now() + 3 * 60 * 1000);
 
-    vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as any);
+    vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as MockUser);
     vi.mocked(RateLimitService.checkResendLimit).mockResolvedValue({
       isLimited: true,
       retryAfter,
@@ -133,7 +133,7 @@ describe("OTPResendService", () => {
     const mockOTP = "123456";
     const mockOTPHash = "hashed-otp";
 
-    vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as any);
+    vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as MockUser);
     vi.mocked(RateLimitService.checkResendLimit).mockResolvedValue({
       isLimited: false,
       requestCount: 1,
@@ -159,7 +159,7 @@ describe("OTPResendService", () => {
       return await callback(tx);
     });
 
-    (db.transaction as unknown as DbTransaction) = mockTransaction;
+    vi.mocked(db.transaction).mockImplementation(mockTransaction as never);
 
     const result = await OTPResendService.resendOTP("user@example.com");
 
@@ -198,7 +198,7 @@ describe("OTPResendService", () => {
       updatedAt: new Date(),
     };
 
-    vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as any);
+    vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as MockUser);
     vi.mocked(RateLimitService.checkResendLimit).mockResolvedValue({
       isLimited: false,
       requestCount: 0,
@@ -225,7 +225,7 @@ describe("OTPResendService", () => {
       return await callback(tx);
     });
 
-    (db.transaction as unknown as DbTransaction) = mockTransaction;
+    vi.mocked(db.transaction).mockImplementation(mockTransaction as never);
 
     await OTPResendService.resendOTP("user@example.com");
 
@@ -255,7 +255,7 @@ describe("OTPResendService", () => {
       updatedAt: new Date(),
     };
 
-    vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as any);
+    vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as MockUser);
     vi.mocked(RateLimitService.checkResendLimit).mockResolvedValue({
       isLimited: false,
       requestCount: 0,
@@ -280,7 +280,7 @@ describe("OTPResendService", () => {
       return await callback(tx);
     });
 
-    (db.transaction as unknown as DbTransaction) = mockTransaction;
+    vi.mocked(db.transaction).mockImplementation(mockTransaction as never);
 
     await OTPResendService.resendOTP("user@example.com");
 

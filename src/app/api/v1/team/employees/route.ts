@@ -12,7 +12,7 @@ import { TeamService } from "@/server/services/team.service";
  *   get:
  *     summary: List employees
  *     description: Get a paginated list of employees for the authenticated user's organization
- *     tags: [Team]
+ *     tags: [Payroll]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -95,6 +95,10 @@ import { TeamService } from "@/server/services/team.service";
  *         description: Invalid query parameters
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  *       403:
  *         description: User not associated with an organization
  */

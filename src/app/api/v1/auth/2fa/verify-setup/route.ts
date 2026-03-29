@@ -13,7 +13,7 @@ import { ZodError } from "zod";
  *   post:
  *     summary: Complete 2FA setup
  *     description: Verify the provided TOTP code to finalize 2FA enablement
- *     tags: [2FA]
+ *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
  *     requestBody:

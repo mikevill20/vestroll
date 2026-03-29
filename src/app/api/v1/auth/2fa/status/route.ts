@@ -10,7 +10,7 @@ import { TwoFactorService } from "@/server/services/two-factor.service";
  *   get:
  *     summary: Check 2FA status
  *     description: Retrieve the current 2FA status for the authenticated user
- *     tags: [2FA]
+ *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
  *     responses:

@@ -12,7 +12,7 @@ import { eq } from "drizzle-orm";
  *   get:
  *     summary: Get signed upload URL for organization logo
  *     description: Generates a pre-signed URL for uploading an organization logo directly to S3
- *     tags: [Organizations]
+ *     tags: [General]
  *     security:
  *       - bearerAuth: []
  *     parameters:

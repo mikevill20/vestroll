@@ -19,9 +19,39 @@ export interface FlutterwaveConfig {
   baseUrl: string;
 }
 
-async function safeJson(res: Response): Promise<any> {
+interface FlutterwaveApiResponse<T> {
+  status: string;
+  message?: string;
+  data: T;
+}
+
+interface FlutterwaveDisbursementData {
+  id: number | string;
+  reference: string;
+  status: string;
+  amount: number;
+  fee: number;
+}
+
+interface FlutterwaveVirtualAccountData {
+  account_number: string;
+  bank_name: string;
+  order_ref: string;
+}
+
+interface FlutterwaveVerifiedTransactionData {
+  tx_ref?: string;
+  id?: number | string;
+  status?: string;
+  amount?: number | string;
+  currency?: string;
+  created_at?: string;
+  [key: string]: unknown;
+}
+
+async function safeJson<T>(res: Response): Promise<T> {
   try {
-    return await res.json();
+    return (await res.json()) as T;
   } catch {
     throw new InternalServerError(
       `Flutterwave returned an invalid response (HTTP ${res.status})`,
@@ -64,7 +94,8 @@ export class FlutterwaveProvider implements PaymentProvider {
       },
     );
 
-    const data = await safeJson(response);
+    const data =
+      await safeJson<FlutterwaveApiResponse<FlutterwaveDisbursementData>>(response);
 
     if (!response.ok || data.status !== "success") {
       Logger.error("Flutterwave disbursement failed", {
@@ -113,7 +144,8 @@ export class FlutterwaveProvider implements PaymentProvider {
       },
     );
 
-    const data = await safeJson(response);
+    const data =
+      await safeJson<FlutterwaveApiResponse<FlutterwaveVirtualAccountData>>(response);
 
     if (!response.ok || data.status !== "success") {
       Logger.error("Flutterwave virtual account creation failed", {
@@ -146,7 +178,8 @@ export class FlutterwaveProvider implements PaymentProvider {
       },
     );
 
-    const data = await safeJson(response);
+    const data =
+      await safeJson<FlutterwaveApiResponse<FlutterwaveVerifiedTransactionData>>(response);
 
     if (!response.ok || data.status !== "success") {
       Logger.error("Flutterwave transaction verification failed", {

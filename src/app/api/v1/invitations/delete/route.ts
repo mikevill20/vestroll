@@ -5,6 +5,38 @@ import { AuthUtils } from "@/server/utils/auth";
 import { invitationService } from "@/server/services/invitation.service";
 import { deleteInvitationSchema } from "@/server/validations/invitation.schema";
 
+/**
+ * @swagger
+ * /invitations/delete:
+ *   delete:
+ *     summary: Delete/Revoke invitation
+ *     description: Revoke a pending invitation.
+ *     tags: [Invitations]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - invitationId
+ *             properties:
+ *               invitationId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Invitation deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
+ *       403:
+ *         description: User not associated with an organization
+ */
 export async function DELETE(req: NextRequest) {
   try {
     const { user } = await AuthUtils.authenticateRequest(req);

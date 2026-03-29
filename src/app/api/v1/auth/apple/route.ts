@@ -81,8 +81,8 @@ export async function POST(req: NextRequest) {
     };
 
     console.log("[Apple OAuth] Generating tokens");
-    const accessToken = JWTService.generateAccessToken(jwtPayload);
-    const refreshToken = JWTService.generateRefreshToken(jwtPayload);
+    const accessToken = await JWTService.generateAccessToken(jwtPayload);
+    const refreshToken = await JWTService.generateRefreshToken(jwtPayload);
 
     console.log("[Apple OAuth] Creating session");
     await SessionService.createSession(user.id, refreshToken);

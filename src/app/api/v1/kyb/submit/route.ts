@@ -5,6 +5,7 @@ import { AuthUtils } from "@/server/utils/auth";
 import { KybSubmitSchema, KYB_FILE_CONSTRAINTS } from "@/server/validations/kyb.schema";
 import { KybService } from "@/server/services/kyb.service";
 import { ZodError } from "zod";
+import { withKybRateLimit } from "@/server/services/rate-limit.service";
 
 /**
  * @swagger
@@ -12,7 +13,7 @@ import { ZodError } from "zod";
  *   post:
  *     summary: Submit KYB documents
  *     description: Upload business registration documents for KYB verification
- *     tags: [KYB]
+ *     tags: [General]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -47,10 +48,14 @@ import { ZodError } from "zod";
  *         description: Validation failed
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  *       409:
  *         description: KYB already submitted or approved
  */
-export async function POST(req: NextRequest) {
+export const POST = withKybRateLimit(async (req: NextRequest) => {
   const uploadedPublicIds: string[] = [];
 
   try {
@@ -156,7 +161,7 @@ export async function POST(req: NextRequest) {
 
     if (error instanceof ZodError) {
       const fieldErrors: Record<string, string> = {};
-      error.issues.forEach((issue) => {
+      error.issues.forEach((issue: any) => {
         if (issue.path[0]) {
           fieldErrors[issue.path[0].toString()] = issue.message;
         }
@@ -170,5 +175,5 @@ export async function POST(req: NextRequest) {
 
     console.error("[KYB Submit Error]", error);
     return ApiResponse.error("Internal server error", 500);
-  }
 }
+});

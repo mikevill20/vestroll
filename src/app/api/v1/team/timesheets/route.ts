@@ -11,7 +11,7 @@ import { GetTimesheetsQuerySchema } from "@/server/validations/timesheet.schema"
  *   get:
  *     summary: List timesheets
  *     description: Retrieve all hourly logs submitted by contractors for the authenticated user's organization
- *     tags: [Team]
+ *     tags: [Payroll]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -81,6 +81,10 @@ import { GetTimesheetsQuerySchema } from "@/server/validations/timesheet.schema"
  *         description: Invalid query parameters
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  *       403:
  *         description: User not associated with an organization
  */

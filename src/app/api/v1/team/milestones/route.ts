@@ -8,7 +8,7 @@ import { ApiResponse } from "@/server/utils/api-response";
  *   get:
  *     summary: List milestones
  *     description: Get a list of project milestones including their ID, name, amount, due date, and status
- *     tags: [Team]
+ *     tags: [Payroll]
  *     responses:
  *       200:
  *         description: Milestones retrieved successfully

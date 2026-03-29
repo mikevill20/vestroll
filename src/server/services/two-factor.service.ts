@@ -244,7 +244,7 @@ export class TwoFactorService {
 
     await AuditLogService.logEvent({
       userId,
-      event: "SECURITY_CHANGE" as any, // I'll add this to enum if needed, or use existing
+      event: "SECURITY_CHANGE",
       newValue: "2FA Enabled",
     });
 
@@ -400,7 +400,7 @@ export class TwoFactorService {
 
     await AuditLogService.logEvent({
       userId,
-      event: "SECURITY_CHANGE" as any,
+      event: "SECURITY_CHANGE",
       oldValue: "2FA Enabled",
       newValue: "2FA Disabled",
     });

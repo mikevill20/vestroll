@@ -11,7 +11,7 @@ import { UpdateTimesheetStatusSchema } from "@/server/validations/timesheet.sche
  *   patch:
  *     summary: Update timesheet status
  *     description: Approve or reject a submitted timesheet. Approved timesheets are locked and queued for payroll processing.
- *     tags: [Team]
+ *     tags: [Payroll]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -53,6 +53,10 @@ import { UpdateTimesheetStatusSchema } from "@/server/validations/timesheet.sche
  *         description: Invalid input or timesheet already processed
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  *       404:
  *         description: Timesheet not found
  */

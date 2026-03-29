@@ -38,8 +38,8 @@ export interface ContractEvent {
   id: string;
   ledger: number;
   contractId: string;
-  topics: any[];
-  value: any;
+  topics: unknown[];
+  value: unknown;
 }
 
 type NetworkName = "testnet" | "mainnet" | "futurenet";

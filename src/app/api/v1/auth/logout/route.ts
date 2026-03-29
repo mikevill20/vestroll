@@ -45,6 +45,7 @@ export async function POST(request: NextRequest) {
           refreshToken = validation.data.refreshToken;
         }
       } catch {
+        // Ignore JSON parsing errors
       }
     }
 

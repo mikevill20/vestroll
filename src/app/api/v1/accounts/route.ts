@@ -5,6 +5,72 @@ import { AuthUtils } from "@/server/utils/auth";
 import { bankAccountService } from "@/server/services/bank-account.service";
 import { updateEmployeeAccountSchema } from "@/server/validations/account.schema";
 
+/**
+ * @swagger
+ * /accounts:
+ *   get:
+ *     summary: Get employee account details
+ *     description: Retrieve bank account details for a specific employee.
+ *     tags: [Accounts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: employeeId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Employee ID
+ *     responses:
+ *       200:
+ *         description: Account details retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
+ *       403:
+ *         description: User not associated with an organization
+ *       404:
+ *         description: Employee account not found
+ *   put:
+ *     summary: Update employee account details
+ *     description: Update bank account details for a specific employee.
+ *     tags: [Accounts]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - employeeId
+ *             properties:
+ *               employeeId:
+ *                 type: string
+ *               accountHolderName:
+ *                 type: string
+ *               accountNumber:
+ *                 type: string
+ *               routingNumber:
+ *                 type: string
+ *               bankName:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Account details updated successfully
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
+ *       403:
+ *         description: User not associated with an organization
+ */
 export async function PUT(req: NextRequest) {
   try {
     const { user } = await AuthUtils.authenticateRequest(req);

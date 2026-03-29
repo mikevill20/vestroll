@@ -10,7 +10,7 @@ import { acceptInvitationSchema, declineInvitationSchema } from "@/server/valida
  *   post:
  *     summary: Accept organization invitation
  *     description: Accept an invitation to join an organization and create user account
- *     tags: [Invitations]
+ *     tags: [General]
  *     requestBody:
  *       required: true
  *       content:

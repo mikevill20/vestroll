@@ -1,5 +1,6 @@
 import { db, milestones } from "../db";
 import { eq } from "drizzle-orm";
+import { BadRequestError, NotFoundError } from "../utils/errors";
 
 export class MilestoneService {
   static async updateMilestoneStatus(
@@ -13,16 +14,12 @@ export class MilestoneService {
       .limit(1);
 
     if (!milestone) {
-      const error = new Error("Milestone not found");
-      (error as any).status = 404;
-      throw error;
+      throw new NotFoundError("Milestone not found");
     }
 
     const terminalStates = ["approved", "rejected"];
     if (terminalStates.includes(milestone.status)) {
-      const error = new Error("Cannot update milestone in terminal state");
-      (error as any).status = 400;
-      throw error;
+      throw new BadRequestError("Cannot update milestone in terminal state");
     }
 
     const [updated] = await db

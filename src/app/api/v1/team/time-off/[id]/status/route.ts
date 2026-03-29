@@ -17,7 +17,7 @@ import { TimeOffService } from "@/server/services/time-off.service";
  *   patch:
  *     summary: Update time-off request status
  *     description: Allows administrators or managers to approve or reject a time-off request
- *     tags: [Team]
+ *     tags: [Payroll]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -49,6 +49,10 @@ import { TimeOffService } from "@/server/services/time-off.service";
  *         description: Invalid request body or rejection reason missing
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  *       403:
  *         description: Only administrators or managers are allowed
  *       404:

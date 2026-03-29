@@ -97,6 +97,10 @@ import { ListTransactionsSchema } from "@/server/validations/finance.schema";
  *         description: Invalid query parameters
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  */
 export async function GET(req: NextRequest) {
   try {

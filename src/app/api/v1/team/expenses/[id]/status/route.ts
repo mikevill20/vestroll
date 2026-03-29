@@ -16,7 +16,7 @@ import { UpdateExpenseStatusSchema } from "@/server/validations/expense-status.s
  * /team/expenses/{id}/status:
  *   patch:
  *     summary: Approve or reject an expense submission
- *     tags: [Team]
+ *     tags: [Payroll]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -48,6 +48,10 @@ import { UpdateExpenseStatusSchema } from "@/server/validations/expense-status.s
  *         description: Invalid request or business rule violation
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  *       403:
  *         description: Forbidden
  *       404:

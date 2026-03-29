@@ -11,7 +11,7 @@ import { EmailService } from "@/server/services/email.service";
  *   post:
  *     summary: Initialize 2FA setup
  *     description: Generate security secret, QR code URL, and backup codes for the authenticated user
- *     tags: [2FA]
+ *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
  *     responses:

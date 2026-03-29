@@ -5,8 +5,8 @@ import { organizationInvitations, users, organizations } from "../db/schema";
 import { eq } from "drizzle-orm";
 
 describe("InvitationService", () => {
-  let testOrganization: any;
-  let testUser: any;
+  let testOrganization: typeof organizations.$inferSelect;
+  let testUser: typeof users.$inferSelect;
   let cleanup: (() => Promise<void>)[] = [];
 
   beforeEach(async () => {

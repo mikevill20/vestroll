@@ -13,7 +13,7 @@ import { ZodError } from "zod";
  *   post:
  *     summary: Disable 2FA
  *     description: Disable two-factor authentication for the authenticated user
- *     tags: [2FA]
+ *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
  *     requestBody:

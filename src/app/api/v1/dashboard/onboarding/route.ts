@@ -10,7 +10,7 @@ import { OnboardingService } from "@/server/services/onboarding.service";
  *   get:
  *     summary: Get onboarding status
  *     description: Retrieve the organization's onboarding progress across email verification, company profile, KYB verification, and wallet funding
- *     tags: [Dashboard]
+ *     tags: [General]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -48,6 +48,10 @@ import { OnboardingService } from "@/server/services/onboarding.service";
  *                         type: boolean
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  *       404:
  *         description: User not found
  */

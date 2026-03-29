@@ -10,7 +10,7 @@ import { CompanyService } from "@/server/services/company.service";
  *   get:
  *     summary: Get company profile
  *     description: Return the authenticated user's organization legal and contact details
- *     tags: [Company]
+ *     tags: [General]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -67,6 +67,10 @@ import { CompanyService } from "@/server/services/company.service";
  *                       nullable: true
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  *       404:
  *         description: User not associated with an organization
  */

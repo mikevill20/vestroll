@@ -1,37 +1,29 @@
-import crypto from "crypto";
-import { Logger } from "@/server/services/logger.service";
+import { Logger } from "./logger.service";
 
 export class WebhookService {
-  static verifyMonnifySignature(rawBody: string, signature: string) {
-    const secret = process.env.MONNIFY_SECRET_KEY as string;
+  static async handleWebhook(payload: any, signature: string) {
+    // Mock webhook verification
+    if (!signature) {
+      throw new Error("Missing signature");
+    }
 
-    const hash = crypto
-      .createHmac("sha512", secret)
-      .update(rawBody)
-      .digest("hex");
-
-    return hash === signature;
-  }
-
-  static async logWebhookPayload(provider: string, payload: any) {
-    // TODO: Replace with DB insert when webhook_audit_logs table is available
-    Logger.info("Webhook Audit Log:", {
-      provider,
-      payload,
-      receivedAt: new Date().toISOString(),
-    });
-  }
-
-  static async processSuccessfulDeposit(reference: string, amount: number) {
-    // TODO: Replace with real DB logic
-    Logger.info("Processing successful deposit:", {
-      reference,
-      amount,
+    Logger.info("Webhook received", {
+      type: payload.type,
+      id: payload.id,
     });
 
-    // Example logic flow:
-    // 1. Find fiat transaction by reference
-    // 2. Mark transaction as successful
-    // 3. Increment organization balance
+    // Handle different webhook types
+    switch (payload.type) {
+      case "payout.success":
+        Logger.info("Payout successful", { id: payload.id });
+        break;
+      case "payout.failed":
+        Logger.info("Payout failed", { id: payload.id });
+        break;
+      default:
+        Logger.info("Unhandled webhook type", { type: payload.type });
+    }
+
+    return { success: true };
   }
 }

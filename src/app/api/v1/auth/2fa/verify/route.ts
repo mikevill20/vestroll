@@ -16,7 +16,7 @@ import { eq } from "drizzle-orm";
  *   post:
  *     summary: Verify 2FA during login
  *     description: Authenticate user with TOTP code or backup code after initial credentials verification
- *     tags: [2FA]
+ *     tags: [Auth]
  *     requestBody:
  *       required: true
  *       content:

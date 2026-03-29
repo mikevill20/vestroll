@@ -10,7 +10,7 @@ export const swaggerOptions: swaggerJSDoc.Options = {
     },
     servers: [
       {
-        url: "/api/v1/v1",
+        url: "/api/v1",
         description: "Standard API v1 base",
       },
     ],
@@ -22,11 +22,54 @@ export const swaggerOptions: swaggerJSDoc.Options = {
           bearerFormat: "JWT",
         },
       },
+      schemas: {
+        UnauthorizedError: {
+          type: "object",
+          properties: {
+            success: {
+              type: "boolean",
+              example: false,
+            },
+            message: {
+              type: "string",
+              example: "Authentication required",
+            },
+            errors: {
+              type: "object",
+              nullable: true,
+              example: null,
+            },
+          },
+        },
+      },
     },
+    tags: [
+      {
+        name: "Auth",
+        description:
+          "User authentication, sessions, and security (including 2FA)",
+      },
+      {
+        name: "Finance",
+        description:
+          "Wallet management, wallet-to-wallet transactions, and financial settings",
+      },
+      {
+        name: "Payroll",
+        description:
+          "Employee management, timesheets, time-off requests, and expense tracking",
+      },
+      {
+        name: "General",
+        description:
+          "General endpoints like Dashboard, Company, and KYB status",
+      },
+    ],
   },
 
   apis: [
     "./src/app/api/v1/**/*.ts",
+    "./src/server/validations/*.ts",
     "!./src/app/api/v1/**/*.test.ts",
     "!./src/app/api/v1/**/*.spec.ts",
   ],
@@ -37,5 +80,3 @@ export function createSwaggerSpec() {
 }
 
 export const swaggerSpec = createSwaggerSpec();
-
-
