@@ -541,8 +541,9 @@ export class BlockchainService {
       );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = (await response.json()) as any;
-    const ledgerRecord = data._embedded ? data._embedded.records?.[0] : data;
+    const ledgerRecord = data._embedded ? (data._embedded as any).records?.[0] : data;
 
     if (!ledgerRecord?.closed_at || ledgerRecord.sequence == null) {
       throw new Error(params.missingDataMessage);
@@ -620,6 +621,7 @@ export class BlockchainService {
     params: GetContractEventsParams,
   ): Promise<ContractEvent[]> {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const requestParams: any = {
         filters: params.contractId
           ? [
@@ -636,12 +638,15 @@ export class BlockchainService {
         requestParams.startLedger = params.fromLedger;
       }
 
-      const response = await this.rpcServer.getEvents(requestParams);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = await (this.rpcServer as any).getEvents(requestParams);
 
-      return response.events.map((event: any) => ({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (response as any).events.map((event: any) => ({
         id: event.id,
         ledger: event.ledger,
         contractId: typeof event.contractId === "string" ? event.contractId : event.contractId?.toString() || "",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         topics: event.topic.map((t: any) => scValToNative(t)),
         value: scValToNative(event.value),
       }));

@@ -1,7 +1,10 @@
 import { Logger } from "./logger.service";
 
 export class WebhookService {
-  static async handleWebhook(payload: any, signature: string) {
+  static async handleWebhook(
+    payload: Record<string, unknown>,
+    signature: string,
+  ) {
     // Mock webhook verification
     if (!signature) {
       throw new Error("Missing signature");

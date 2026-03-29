@@ -103,10 +103,11 @@ export class RateLimitService {
 }
 
 export function withKybRateLimit(
-  handler: (req: NextRequest, ...args: any[]) => Promise<Response>
+  handler: (req: NextRequest, ...args: unknown[]) => Promise<Response>,
 ) {
-  return async (req: NextRequest, ...args: any[]) => {
-    let identifier = req.headers.get("x-forwarded-for") || req.ip;
+  return async (req: NextRequest, ...args: unknown[]) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let identifier = req.headers.get("x-forwarded-for") || (req as any).ip;
     
     // Fallback if IP is not available
     if (!identifier) {

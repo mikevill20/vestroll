@@ -58,6 +58,7 @@ export class UserService {
       lastName: string;
       email: string;
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tx?: PgTransaction<any, any, any>,
   ) {
     const normalizedEmail = data.email.toLowerCase().trim();

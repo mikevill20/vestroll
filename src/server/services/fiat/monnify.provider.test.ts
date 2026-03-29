@@ -133,8 +133,8 @@ describe("MonnifyProvider", () => {
       });
 
       // auth was called only once (first fetch call)
-      const authCalls = fetchMock.mock.calls.filter((args: any[]) =>
-        args[0].includes("/auth/login")
+      const authCalls = fetchMock.mock.calls.filter((args: unknown[]) =>
+        (args[0] as string).includes("/auth/login"),
       );
       expect(authCalls).toHaveLength(1);
     });

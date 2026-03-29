@@ -1,0 +1,29 @@
+﻿
+> vestroll-frontend@0.1.0 lint C:\Users\USER\Desktop\drips\vestroll
+> eslint
+
+
+C:\Users\USER\Desktop\drips\vestroll\src\server\services\blockchain.service.ts
+  544:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  623:28  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  641:42  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  645:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\USER\Desktop\drips\vestroll\src\server\services\fiat\monnify.provider.test.ts
+  136:60  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\USER\Desktop\drips\vestroll\src\server\services\rate-limit.service.ts
+  106:40  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  108:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\USER\Desktop\drips\vestroll\src\server\services\user.service.ts
+  61:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  61:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  61:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\USER\Desktop\drips\vestroll\src\server\services\webhook.service.ts
+  4:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+Γ£û 11 problems (11 errors, 0 warnings)
+
+ΓÇëELIFECYCLEΓÇë Command failed with exit code 1.

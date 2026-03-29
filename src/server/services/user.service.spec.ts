@@ -79,7 +79,7 @@ describe("UserService", () => {
 
       vi.mocked(db.insert).mockReturnValue({
         values: mockValues,
-      } as InsertChain);
+      } as any);
 
       const result = await UserService.create(userData);
 
@@ -137,7 +137,7 @@ describe("UserService", () => {
         }),
       };
 
-      const result = await UserService.create(userData, mockTx as UserCreateTx);
+      const result = await UserService.create(userData, mockTx as any);
 
       expect(mockTx.insert).toHaveBeenCalledWith(users);
       expect(mockValues).toHaveBeenCalledWith({
@@ -250,7 +250,7 @@ describe("UserService", () => {
 
       vi.mocked(db.transaction).mockImplementation(transactionCallback as never);
 
-      const result = await UserService.create(userData, mockTx as UserCreateTx);
+      const result = await UserService.create(userData, mockTx as any);
 
       expect(result).toEqual(mockUser);
       expect(mockTx.insert).toHaveBeenCalledWith(users);
@@ -304,7 +304,7 @@ describe("UserService", () => {
         }),
       };
 
-      const result = await UserService.create(userData, mockTx as UserCreateTx);
+      const result = await UserService.create(userData, mockTx as any);
 
       expect(result).toEqual(mockUser);
       expect(mockTx.insert).toHaveBeenCalledWith(users);

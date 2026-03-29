@@ -107,7 +107,7 @@ describe("AuthService – registration + email-verification funnel (integration)
   describe("register", () => {
     it("should create a new user and persist a verification hash inside a transaction", async () => {
       // No pre-existing user
-      vi.mocked(UserService.findByEmail).mockResolvedValue(null);
+      vi.mocked(UserService.findByEmail).mockResolvedValue(null as any);
 
       const result = await AuthService.register(VALID_REGISTER_INPUT);
 
@@ -138,7 +138,7 @@ describe("AuthService – registration + email-verification funnel (integration)
     });
 
     it("should persist an organization row when companyName is supplied", async () => {
-      vi.mocked(UserService.findByEmail).mockResolvedValue(null);
+      vi.mocked(UserService.findByEmail).mockResolvedValue(null as any);
 
       await AuthService.register(VALID_REGISTER_INPUT);
 
@@ -172,7 +172,7 @@ describe("AuthService – registration + email-verification funnel (integration)
       };
 
       vi.mocked(UserService.findByEmail).mockResolvedValue(
-        existingUser as UserLookupResult,
+        existingUser as any,
       );
 
       await expect(
@@ -188,7 +188,7 @@ describe("AuthService – registration + email-verification funnel (integration)
     });
 
     it("should not write an organization row when companyName is absent", async () => {
-      vi.mocked(UserService.findByEmail).mockResolvedValue(null);
+      vi.mocked(UserService.findByEmail).mockResolvedValue(null as any);
 
       const inputWithoutCompany: RegisterInput = {
         ...VALID_REGISTER_INPUT,
@@ -209,7 +209,7 @@ describe("AuthService – registration + email-verification funnel (integration)
 
   describe("EmailVerificationService.getVerificationStatus – hash read-back", () => {
     it("should return the persisted verification record for the newly created user", async () => {
-      vi.mocked(UserService.findByEmail).mockResolvedValue(null);
+      vi.mocked(UserService.findByEmail).mockResolvedValue(null as any);
 
       const { userId } = await AuthService.register(VALID_REGISTER_INPUT);
 
@@ -246,7 +246,7 @@ describe("AuthService – registration + email-verification funnel (integration)
     it("should mark the verification record as verified and activate the user", async () => {
       // ── Arrange ──────────────────────────────────────────────────────────
 
-      vi.mocked(UserService.findByEmail).mockResolvedValue(null);
+      vi.mocked(UserService.findByEmail).mockResolvedValue(null as any);
 
       // 1. Run registration so the store contains a user + verification row.
       const { userId, email } = await AuthService.register(
@@ -279,7 +279,7 @@ describe("AuthService – registration + email-verification funnel (integration)
         updatedAt: new Date(),
       };
       vi.mocked(UserService.findByEmail).mockResolvedValue(
-        pendingUser as UserLookupResult,
+        pendingUser as any,
       );
 
       // 3. Wire db.select to return the unverified verification row.
@@ -361,7 +361,7 @@ describe("AuthService – registration + email-verification funnel (integration)
   describe("post-verification state – restriction cleared", () => {
     it("should reflect no remaining pending verification constraint after successful verify", async () => {
       // ── Register ─────────────────────────────────────────────────────────
-      vi.mocked(UserService.findByEmail).mockResolvedValue(null);
+      vi.mocked(UserService.findByEmail).mockResolvedValue(null as any);
 
       const { userId, email } = await AuthService.register(
         VALID_REGISTER_INPUT,
@@ -397,7 +397,7 @@ describe("AuthService – registration + email-verification funnel (integration)
         updatedAt: new Date(),
       };
       vi.mocked(UserService.findByEmail).mockResolvedValue(
-        pendingUser as UserLookupResult,
+        pendingUser as any,
       );
 
       mockDb.select = vi.fn().mockReturnValue({

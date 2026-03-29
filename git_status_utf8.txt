@@ -1,0 +1,97 @@
+﻿On branch feat/api-v1-prefix
+Your branch is up to date with 'origin/feat/api-v1-prefix'.
+
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+  (use "git merge --abort" to abort the merge)
+
+Changes to be committed:
+	modified:   .env.example
+	modified:   eslint.config.mjs
+	modified:   src/app/api/v1/accounts/route.ts
+	modified:   src/app/api/v1/accounts/validate/route.ts
+	modified:   src/app/api/v1/accounts/verify/route.ts
+	modified:   src/app/api/v1/auth/2fa/disable/route.ts
+	modified:   src/app/api/v1/auth/2fa/regenerate-backup-codes/route.ts
+	modified:   src/app/api/v1/auth/2fa/setup/route.ts
+	modified:   src/app/api/v1/auth/2fa/status/route.ts
+	modified:   src/app/api/v1/auth/2fa/verify-setup/route.ts
+	modified:   src/app/api/v1/auth/2fa/verify/route.ts
+	modified:   src/app/api/v1/auth/apple/route.ts
+	modified:   src/app/api/v1/auth/change-password/route.ts
+	modified:   src/app/api/v1/auth/google/route.ts
+	modified:   src/app/api/v1/company/profile/route.ts
+	modified:   src/app/api/v1/dashboard/attention/route.ts
+	modified:   src/app/api/v1/dashboard/onboarding/route.ts
+	modified:   src/app/api/v1/dashboard/user-summary/route.ts
+	modified:   src/app/api/v1/finance/transactions/[id]/route.ts
+	modified:   src/app/api/v1/finance/transactions/route.ts
+	modified:   src/app/api/v1/finance/wallet/route.ts
+	modified:   src/app/api/v1/invitations/accept/route.ts
+	modified:   src/app/api/v1/invitations/delete/route.ts
+	modified:   src/app/api/v1/invitations/resend/route.ts
+	modified:   src/app/api/v1/invitations/route.ts
+	modified:   src/app/api/v1/kyb/status/route.ts
+	modified:   src/app/api/v1/kyb/submit/route.ts
+	modified:   src/app/api/v1/organizations/logo-upload-url/route.ts
+	modified:   src/app/api/v1/organizations/logo/route.ts
+	modified:   src/app/api/v1/team/employees/[id]/route.ts
+	modified:   src/app/api/v1/team/employees/bank-verification/route.ts
+	modified:   src/app/api/v1/team/employees/route.ts
+	modified:   src/app/api/v1/team/expenses/[id]/status/route.ts
+	modified:   src/app/api/v1/team/milestones/route.ts
+	modified:   src/app/api/v1/team/time-off/[id]/status/route.ts
+	modified:   src/app/api/v1/team/time-off/route.ts
+	modified:   src/app/api/v1/team/timesheets/[id]/status/route.ts
+	modified:   src/app/api/v1/team/timesheets/route.ts
+	modified:   src/middleware.ts
+	modified:   src/server/services/apple-oauth.service.spec.ts
+	modified:   src/server/services/auth.service.spec.ts
+	modified:   src/server/services/auth.service.ts
+	modified:   src/server/services/bank-verification.service.ts
+	modified:   src/server/services/blockchain.service.spec.ts
+	modified:   src/server/services/blockchain.service.ts
+	modified:   src/server/services/email-verification.service.spec.ts
+	modified:   src/server/services/fiat/flutterwave.provider.ts
+	new file:   src/server/services/finance-wallet.service.spec.ts
+	modified:   src/server/services/google-oauth.service.spec.ts
+	modified:   src/server/services/google-oauth.service.ts
+	modified:   src/server/services/invitation.service.spec.ts
+	modified:   src/server/services/jwt-verification.service.spec.ts
+	modified:   src/server/services/jwt.service.spec.ts
+	modified:   src/server/services/jwt.service.ts
+	modified:   src/server/services/logout.service.spec.ts
+	modified:   src/server/services/milestone.service.ts
+	modified:   src/server/services/oauth-user-provisioning.service.spec.ts
+	modified:   src/server/services/otp-resend.service.spec.ts
+	modified:   src/server/services/rate-limit.service.ts
+	modified:   src/server/services/session.service.spec.ts
+	modified:   src/server/services/team.service.spec.ts
+	modified:   src/server/services/team.service.ts
+	modified:   src/server/services/token-refresh.service.spec.ts
+	modified:   src/server/services/two-factor.service.ts
+	modified:   src/server/services/user.service.spec.ts
+	modified:   src/server/utils/api-response.ts
+	modified:   src/server/utils/auth-errors.ts
+	modified:   src/server/utils/errors.ts
+	modified:   src/server/utils/errors/index.ts
+	modified:   src/server/utils/logout-errors.ts
+	new file:   src/server/utils/problem-details.ts
+	new file:   src/server/utils/role.spec.ts
+	new file:   src/server/utils/with-error-handler.ts
+
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+	both modified:   src/app/api/v1/auth/logout/route.ts
+	both modified:   src/server/health/route.ts
+	both modified:   src/server/services/bank-account.service.ts
+	both modified:   src/server/services/invitation.service.ts
+	both modified:   src/server/services/webhook.service.ts
+	both modified:   src/server/swagger-config.ts
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	git_status.txt
+	git_status_utf8.txt
+	tsc_output.txt
+
