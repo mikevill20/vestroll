@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { JWTService } from "@/server/services/jwt.service";
 
 export async function middleware(req: NextRequest) {
+  // Generate a standard UUID (v4)
+  const responseId = crypto.randomUUID();
+
+  // Clone headers to inject it into the request for downstream use
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-response-id", responseId);
+
   const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") ?? [];
   const origin = req.headers.get("origin");
 
@@ -28,6 +35,7 @@ export async function middleware(req: NextRequest) {
         "Content-Type, Authorization, X-Requested-With",
       );
       response.headers.set("Access-Control-Max-Age", "86400");
+      response.headers.set("x-response-id", responseId);
       return response;
     }
   }
@@ -45,13 +53,22 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  const response = NextResponse.next();
+  // Pass along the modified request headers
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
+
   response.headers.set("Vary", "Accept-Encoding");
 
   // For non-OPTIONS requests, add the Access-Control-Allow-Origin header if the origin is allowed.
   if (origin && allowedOrigins.includes(origin)) {
     response.headers.set("Access-Control-Allow-Origin", origin);
   }
+
+  // Attach the same UUID to the response headers
+  response.headers.set("x-response-id", responseId);
 
   return response;
 }

@@ -25,6 +25,7 @@ export class ApiResponse {
     data: T,
     message: string = "Success",
     status: number = 200,
+    headers?: HeadersInit
   ): NextResponse<SuccessResponse<T>> {
     return NextResponse.json(
       {
@@ -32,7 +33,10 @@ export class ApiResponse {
         message,
         data,
       },
-      { status },
+      { 
+        status,
+        headers 
+      }
     );
   }
 
@@ -46,12 +50,14 @@ export class ApiResponse {
    * @param errors   Optional field-level error map (e.g. from Zod).
    * @param req      The originating request – used to populate `instance`.
    *                 Falls back to `"unknown"` when omitted.
+   * @param headers  Optional additional headers.
    */
   static error(
     detail: string = "Internal Server Error",
     status: number = 500,
     errors: Record<string, unknown> | null = null,
     req?: NextRequest,
+    headers?: HeadersInit
   ): NextResponse<ProblemDetails> {
     const instance = req?.nextUrl?.pathname ?? "unknown";
 
@@ -61,6 +67,7 @@ export class ApiResponse {
       status,
       headers: {
         "Content-Type": "application/problem+json",
+        ...Object.fromEntries(new Headers(headers).entries()),
       },
     });
   }
@@ -72,11 +79,13 @@ export class ApiResponse {
    */
   static problemDetails(
     problem: ProblemDetails,
+    headers?: HeadersInit
   ): NextResponse<ProblemDetails> {
     return NextResponse.json(problem, {
       status: problem.status,
       headers: {
         "Content-Type": "application/problem+json",
+        ...Object.fromEntries(new Headers(headers).entries()),
       },
     });
   }
