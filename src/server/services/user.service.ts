@@ -1,7 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 import { db, users, userStatusEnum, signerTypeEnum } from "../db";
 import { AuditLogService } from "./audit-log.service";
-import type { Transaction } from "drizzle-orm/postgres-core";
+import type { PgTransaction } from "drizzle-orm/pg-core";
 
 export type UserStatus = (typeof userStatusEnum.enumValues)[number];
 export type SignerType = (typeof signerTypeEnum.enumValues)[number];
@@ -58,7 +58,7 @@ export class UserService {
       lastName: string;
       email: string;
     },
-    tx?: Transaction,
+    tx?: PgTransaction<any, any, any>,
   ) {
     const normalizedEmail = data.email.toLowerCase().trim();
 

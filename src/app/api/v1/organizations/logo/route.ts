@@ -112,7 +112,7 @@ export async function PATCH(req: NextRequest) {
     const [existingProfile] = await db
       .select()
       .from(companyProfiles)
-      .where(eq(companyProfiles.organizationId, user.organizationId))
+      .where(eq(companyProfiles.organizationId, user.organizationId as string))
       .limit(1);
 
     if (!existingProfile) {
@@ -120,8 +120,8 @@ export async function PATCH(req: NextRequest) {
       const [newProfile] = await db
         .insert(companyProfiles)
         .values({
-          userId,
-          organizationId: user.organizationId,
+          userId: userId,
+          organizationId: user.organizationId as string,
           logoUrl,
           // Required fields - we'll use placeholders for now
           brandName: user.organizationName || "Unknown",
@@ -130,6 +130,7 @@ export async function PATCH(req: NextRequest) {
           country: "",
           address: "",
           city: "",
+          billingCountry: "NG", // Default for now
         })
         .returning();
 
@@ -146,7 +147,7 @@ export async function PATCH(req: NextRequest) {
         logoUrl,
         updatedAt: new Date(),
       })
-      .where(eq(companyProfiles.organizationId, user.organizationId))
+      .where(eq(companyProfiles.organizationId, user.organizationId as string))
       .returning();
 
     return ApiResponse.success(

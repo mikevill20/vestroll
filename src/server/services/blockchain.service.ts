@@ -541,22 +541,8 @@ export class BlockchainService {
       );
     }
 
-    const data = (await response.json()) as
-      | {
-          sequence: number | string;
-          closed_at: string;
-        }
-      | {
-          _embedded?: {
-            records?: Array<{
-              sequence: number | string;
-              closed_at: string;
-            }>;
-          };
-        };
-
-    const ledgerRecord =
-      "_embedded" in data ? data._embedded?.records?.[0] : data;
+    const data = (await response.json()) as any;
+    const ledgerRecord = data._embedded ? data._embedded.records?.[0] : data;
 
     if (!ledgerRecord?.closed_at || ledgerRecord.sequence == null) {
       throw new Error(params.missingDataMessage);
@@ -634,7 +620,7 @@ export class BlockchainService {
     params: GetContractEventsParams,
   ): Promise<ContractEvent[]> {
     try {
-      const response = await this.rpcServer.getEvents({
+      const requestParams: any = {
         filters: params.contractId
           ? [
               {
@@ -643,15 +629,20 @@ export class BlockchainService {
               },
             ]
           : [],
-        startLedger: params.fromLedger,
         limit: params.limit,
-      });
+      };
+      
+      if (params.fromLedger) {
+        requestParams.startLedger = params.fromLedger;
+      }
 
-      return response.events.map((event) => ({
+      const response = await this.rpcServer.getEvents(requestParams);
+
+      return response.events.map((event: any) => ({
         id: event.id,
         ledger: event.ledger,
-        contractId: event.contractId,
-        topics: event.topic.map((t) => scValToNative(t)),
+        contractId: typeof event.contractId === "string" ? event.contractId : event.contractId?.toString() || "",
+        topics: event.topic.map((t: any) => scValToNative(t)),
         value: scValToNative(event.value),
       }));
     } catch (error) {

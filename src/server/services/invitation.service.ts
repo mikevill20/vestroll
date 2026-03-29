@@ -1,7 +1,7 @@
 import { db } from "../db";
 import { organizationInvitations, users, organizations } from "../db/schema";
 import { eq, and, desc, lt } from "drizzle-orm";
-import { nanoid } from "nanoid";
+import crypto from "crypto";
 import { addDays, isPast } from "date-fns";
 import { EmailService } from "./email.service";
 
@@ -74,7 +74,7 @@ class InvitationService {
     }
 
     // Generate invitation token
-    const token = nanoid(32);
+    const token = crypto.randomBytes(32).toString('hex');
     const expiresAt = addDays(new Date(), 7); // 7 days expiry
 
     // Create invitation
@@ -313,7 +313,7 @@ class InvitationService {
     }
 
     // Generate new token and extend expiry
-    const newToken = nanoid(32);
+    const newToken = crypto.randomBytes(32).toString('hex');
     const newExpiresAt = addDays(new Date(), 7);
 
     await db

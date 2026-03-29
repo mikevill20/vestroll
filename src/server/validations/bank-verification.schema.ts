@@ -17,9 +17,7 @@ export const BankVerificationSchema = z
         "Numeric or alphanumeric bank/institution code as defined by the payment provider (e.g. Paystack bank code '044' for Access Bank Nigeria). Used by the provider to route the account lookup.",
       ),
     providerId: z
-      .enum(["paystack", "flutterwave"], {
-        errorMap: () => ({ message: "Provider must be paystack or flutterwave" }),
-      })
+      .enum(["paystack", "flutterwave"])
       .describe(
         "Payment provider to use for the account name-enquiry lookup. 'paystack' = Paystack Resolve Account API; 'flutterwave' = Flutterwave Verify Bank Account API.",
       ),
