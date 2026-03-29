@@ -10,6 +10,58 @@ import {
   deleteInvitationSchema
 } from "@/server/validations/invitation.schema";
 
+/**
+ * @swagger
+ * /invitations:
+ *   get:
+ *     summary: List invitations
+ *     description: Retrieve all invitations for the authenticated user's organization.
+ *     tags: [Invitations]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Invitations retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
+ *       403:
+ *         description: User not associated with an organization
+ *   post:
+ *     summary: Create invitation
+ *     description: Invite a new user to join the organization.
+ *     tags: [Invitations]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - role
+ *             properties:
+ *               email:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Invitation created successfully
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
+ *       403:
+ *         description: User not associated with an organization
+ */
 export async function GET(req: NextRequest) {
   try {
     const { user } = await AuthUtils.authenticateRequest(req);

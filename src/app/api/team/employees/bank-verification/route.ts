@@ -59,6 +59,10 @@ import { BankVerificationSchema } from "@/server/validations/bank-verification.s
  *         description: Invalid input or account verification failed
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  */
 export async function POST(req: NextRequest) {
   try {

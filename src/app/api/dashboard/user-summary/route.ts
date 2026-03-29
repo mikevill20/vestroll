@@ -36,6 +36,10 @@ import { DashboardService } from "@/server/services/dashboard.service";
  *                   nullable: true
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  *       404:
  *         description: User not found
  */

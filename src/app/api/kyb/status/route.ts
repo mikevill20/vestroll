@@ -38,6 +38,10 @@ import { withKybRateLimit } from "@/server/services/rate-limit.service";
  *                   nullable: true
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  */
 export const GET = withKybRateLimit(async (req: NextRequest) => {
   try {

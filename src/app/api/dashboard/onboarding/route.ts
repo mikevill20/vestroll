@@ -48,6 +48,10 @@ import { OnboardingService } from "@/server/services/onboarding.service";
  *                         type: boolean
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  *       404:
  *         description: User not found
  */

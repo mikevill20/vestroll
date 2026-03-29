@@ -53,6 +53,10 @@ import { UpdateTimesheetStatusSchema } from "@/server/validations/timesheet.sche
  *         description: Invalid input or timesheet already processed
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  *       404:
  *         description: Timesheet not found
  */

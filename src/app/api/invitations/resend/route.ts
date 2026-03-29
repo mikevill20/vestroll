@@ -5,6 +5,38 @@ import { AuthUtils } from "@/server/utils/auth";
 import { invitationService } from "@/server/services/invitation.service";
 import { resendInvitationSchema } from "@/server/validations/invitation.schema";
 
+/**
+ * @swagger
+ * /invitations/resend:
+ *   post:
+ *     summary: Resend invitation
+ *     description: Resend an invitation email to a previously invited user.
+ *     tags: [Invitations]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - invitationId
+ *             properties:
+ *               invitationId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Invitation resent successfully
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
+ *       403:
+ *         description: User not associated with an organization
+ */
 export async function POST(req: NextRequest) {
   try {
     const { user } = await AuthUtils.authenticateRequest(req);

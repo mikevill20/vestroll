@@ -22,6 +22,26 @@ export const swaggerOptions: swaggerJSDoc.Options = {
           bearerFormat: "JWT",
         },
       },
+      schemas: {
+        UnauthorizedError: {
+          type: "object",
+          properties: {
+            success: {
+              type: "boolean",
+              example: false,
+            },
+            message: {
+              type: "string",
+              example: "Authentication required",
+            },
+            errors: {
+              type: "object",
+              nullable: true,
+              example: null,
+            },
+          },
+        },
+      },
     },
   },
 

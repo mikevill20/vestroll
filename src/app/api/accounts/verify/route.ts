@@ -5,6 +5,44 @@ import { AuthUtils } from "@/server/utils/auth";
 import { bankAccountService } from "@/server/services/bank-account.service";
 import { verifyAccountSchema } from "@/server/validations/account.schema";
 
+/**
+ * @swagger
+ * /accounts/verify:
+ *   post:
+ *     summary: Verify employee bank account
+ *     description: Verify the bank account details for an employee.
+ *     tags: [Accounts]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - employeeId
+ *               - accountNumber
+ *               - bankName
+ *             properties:
+ *               employeeId:
+ *                 type: string
+ *               accountNumber:
+ *                 type: string
+ *               bankName:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Account verification completed
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
+ *       403:
+ *         description: User not associated with an organization
+ */
 export async function POST(req: NextRequest) {
   try {
     const { user } = await AuthUtils.authenticateRequest(req);

@@ -39,6 +39,10 @@ import { ZodError } from "zod";
  *         description: Validation failed or OAuth-only account
  *       401:
  *         description: Unauthorized or incorrect current password
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  */
 export async function POST(req: NextRequest) {
   try {
@@ -58,7 +62,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     if (error instanceof ZodError) {
       const fieldErrors: Record<string, string> = {};
-      error.issues.forEach((issue) => {
+      error.issues.forEach((issue: any) => {
         if (issue.path[0]) {
           fieldErrors[issue.path[0].toString()] = issue.message;
         }

@@ -18,6 +18,10 @@ import { TimeOffService } from "@/server/services/time-off.service";
  *         description: Time-off requests retrieved successfully
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  *       403:
  *         description: User not associated with an organization
  */
