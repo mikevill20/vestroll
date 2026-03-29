@@ -3,6 +3,7 @@ import { ApiResponse } from "@/server/utils/api-response";
 import { AppError } from "@/server/utils/errors";
 import { AuthUtils } from "@/server/utils/auth";
 import { KybService } from "@/server/services/kyb.service";
+import { withKybRateLimit } from "@/server/services/rate-limit.service";
 
 /**
  * @swagger
@@ -38,7 +39,7 @@ import { KybService } from "@/server/services/kyb.service";
  *       401:
  *         description: Unauthorized
  */
-export async function GET(req: NextRequest) {
+export const GET = withKybRateLimit(async (req: NextRequest) => {
   try {
     const { userId } = await AuthUtils.authenticateRequest(req);
 
@@ -53,4 +54,4 @@ export async function GET(req: NextRequest) {
     console.error("[KYB Status Error]", error);
     return ApiResponse.error("Internal server error", 500);
   }
-}
+});
