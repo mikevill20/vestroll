@@ -6,7 +6,9 @@ export class OTPService {
   private static readonly OTP_LENGTH = 6;
 
   static generateOTP(): string {
-    return "123456";
+    const max = 10 ** this.OTP_LENGTH;
+    const randomInt = crypto.randomInt(0, max);
+    return randomInt.toString().padStart(this.OTP_LENGTH, "0");
   }
 
   static async hashOTP(otp: string): Promise<string> {
