@@ -6,11 +6,7 @@ The repository currently lacks a dedicated funding handler and ledger schema.
 This test simulates the expected DB-side behavior for wallet funding by verifying:
 
 - `organization_wallets.funded` is set to true
-- `fundedAt` timestamp is recorded
-
-- `organization_wallets.funded` is set to true
-- `organization_wallets.funded_at` timestamp is recorded (set to `now()` by the
-	test to simulate the time the wallet was funded)
+- `organization_wallets.funded_at` timestamp is recorded (set to `now()` by the test to simulate the time the wallet was funded)
 
 This ensures core funding state transitions are validated at the database level.
 
