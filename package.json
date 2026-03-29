@@ -16,6 +16,7 @@
     "db:reset:local": "dropdb --if-exists vestroll_dev && createdb vestroll_dev && npm run db:migrate && npm run db:seed:local",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "db:seed:local": "psql -d vestroll_dev -f scripts/db/seed-local.sql",
     "db:prune-logs": "tsx scripts/prune-logs.ts",
     "swagger:generate": "tsx scripts/generate-swagger.ts"
@@ -100,6 +101,7 @@
     "@types/swagger-ui-react": "^5.18.0",
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
+    "@vitest/coverage-v8": "^4.1.2",
     "drizzle-kit": "^0.31.8",
     "eslint": "^9",
     "eslint-config-next": "15.5.3",
