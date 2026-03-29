@@ -90,7 +90,7 @@ export class AuthService {
           email: businessEmail.toLowerCase().trim(),
           passwordHash,
           organizationName: companyName,
-          organizationId: organizationId as any,
+          organizationId: organizationId ?? null,
           role: accountType === "employer" ? "admin" : "employee",
           status: "pending_verification",
           signerType: "Email",

@@ -8,9 +8,25 @@ interface ProviderConfig {
   ) => Promise<{ accountName: string }>;
 }
 
-async function safeJson(res: Response): Promise<any> {
+interface PaystackResolveResponse {
+  status: boolean;
+  message?: string;
+  data: {
+    account_name: string;
+  };
+}
+
+interface FlutterwaveResolveResponse {
+  status: string;
+  message?: string;
+  data: {
+    account_name: string;
+  };
+}
+
+async function safeJson<T>(res: Response): Promise<T> {
   try {
-    return await res.json();
+    return (await res.json()) as T;
   } catch {
     throw new BadRequestError(
       `Provider returned an invalid response (HTTP ${res.status})`,
@@ -29,7 +45,7 @@ const providers: Record<string, ProviderConfig> = {
         headers: { Authorization: `Bearer ${secretKey}` },
       });
 
-      const json = await safeJson(res);
+      const json = await safeJson<PaystackResolveResponse>(res);
 
       if (!res.ok || json.status === false) {
         throw new BadRequestError(
@@ -55,7 +71,7 @@ const providers: Record<string, ProviderConfig> = {
         }),
       });
 
-      const json = await safeJson(res);
+      const json = await safeJson<FlutterwaveResolveResponse>(res);
 
       if (!res.ok || json.status !== "success") {
         throw new BadRequestError(

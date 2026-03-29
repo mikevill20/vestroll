@@ -3,6 +3,7 @@ import { organizationInvitations, users, organizations } from "../db/schema";
 import { eq, and, desc, lt } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { addDays, isPast } from "date-fns";
+import type { SQL } from "drizzle-orm";
 import { EmailService } from "./email.service";
 
 export type InvitationRole = "admin" | "hr_manager" | "payroll_manager" | "employee";
@@ -194,7 +195,9 @@ class InvitationService {
     const { status, role, page = 1, limit = 20 } = options;
     const offset = (page - 1) * limit;
 
-    let whereConditions = [eq(organizationInvitations.organizationId, organizationId)];
+    const whereConditions: SQL[] = [
+      eq(organizationInvitations.organizationId, organizationId),
+    ];
     
     if (status) {
       whereConditions.push(eq(organizationInvitations.status, status));
@@ -353,7 +356,7 @@ class InvitationService {
   }
 
   async updateInvitationStatus(invitationId: string, status: InvitationStatus): Promise<void> {
-    const updateData: any = {
+    const updateData: Partial<typeof organizationInvitations.$inferInsert> = {
       status,
       updatedAt: new Date(),
     };

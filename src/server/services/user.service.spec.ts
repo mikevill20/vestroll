@@ -1,6 +1,15 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { UserService } from "./user.service";
 import { db, users } from "../db";
+type InsertChain = {
+  values: ReturnType<typeof vi.fn>;
+};
+
+type SelectChain = {
+  from: ReturnType<typeof vi.fn>;
+};
+
+type UserCreateTx = Parameters<typeof UserService.create>[1];
 
 vi.mock("../db", () => ({
   db: {
@@ -70,7 +79,7 @@ describe("UserService", () => {
 
       vi.mocked(db.insert).mockReturnValue({
         values: mockValues,
-      } as any);
+      } as InsertChain);
 
       const result = await UserService.create(userData);
 
@@ -128,7 +137,7 @@ describe("UserService", () => {
         }),
       };
 
-      const result = await UserService.create(userData, mockTx as any);
+      const result = await UserService.create(userData, mockTx as UserCreateTx);
 
       expect(mockTx.insert).toHaveBeenCalledWith(users);
       expect(mockValues).toHaveBeenCalledWith({
@@ -179,7 +188,7 @@ describe("UserService", () => {
 
       vi.mocked(db.insert).mockReturnValue({
         values: mockValues,
-      } as any);
+      } as InsertChain);
 
       const result = await UserService.create(userData);
 
@@ -239,9 +248,9 @@ describe("UserService", () => {
         }
       });
 
-      vi.mocked(db.transaction).mockImplementation(transactionCallback as any);
+      vi.mocked(db.transaction).mockImplementation(transactionCallback as never);
 
-      const result = await UserService.create(userData, mockTx as any);
+      const result = await UserService.create(userData, mockTx as UserCreateTx);
 
       expect(result).toEqual(mockUser);
       expect(mockTx.insert).toHaveBeenCalledWith(users);
@@ -295,7 +304,7 @@ describe("UserService", () => {
         }),
       };
 
-      const result = await UserService.create(userData, mockTx as any);
+      const result = await UserService.create(userData, mockTx as UserCreateTx);
 
       expect(result).toEqual(mockUser);
       expect(mockTx.insert).toHaveBeenCalledWith(users);
@@ -347,7 +356,7 @@ describe("UserService", () => {
 
         vi.mocked(db.insert).mockReturnValue({
           values: mockValues,
-        } as any);
+        } as InsertChain);
 
         await UserService.create({
           firstName: "Test",
@@ -399,7 +408,7 @@ describe("UserService", () => {
 
       vi.mocked(db.select).mockReturnValue({
         from: mockFrom,
-      } as any);
+      } as SelectChain);
 
       const result = await UserService.findByEmail("TEST@EXAMPLE.COM  ");
 
@@ -421,7 +430,7 @@ describe("UserService", () => {
 
       vi.mocked(db.select).mockReturnValue({
         from: mockFrom,
-      } as any);
+      } as SelectChain);
 
       const result = await UserService.findByEmail("nonexistent@example.com");
 

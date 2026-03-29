@@ -460,7 +460,7 @@ describe("BlockchainService", () => {
       });
 
       const tx = TransactionBuilder.fromXDR(result.xdr, Networks.TESTNET);
-      expect("operations" in tx && (tx as any).operations.length).toBe(2);
+      expect("operations" in tx ? tx.operations.length : 0).toBe(2);
     });
 
     it("should respect custom fee and timeout", async () => {

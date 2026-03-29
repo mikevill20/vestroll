@@ -46,8 +46,8 @@ describe("OAuthUserProvisioningService", () => {
                 }),
             });
 
-            (db.select as any) = mockSelect;
-            (db.update as any) = mockUpdate;
+            vi.mocked(db.select).mockImplementation(mockSelect);
+            vi.mocked(db.update).mockImplementation(mockUpdate);
 
             const googleUserInfo = {
                 email: "existing@example.com",
@@ -106,8 +106,8 @@ describe("OAuthUserProvisioningService", () => {
                 }),
             });
 
-            (db.select as any) = mockSelect;
-            (db.update as any) = mockUpdate;
+            vi.mocked(db.select).mockImplementation(mockSelect);
+            vi.mocked(db.update).mockImplementation(mockUpdate);
 
             const googleUserInfo = {
                 email: "existing@example.com",
@@ -159,9 +159,9 @@ describe("OAuthUserProvisioningService", () => {
                 }),
             });
 
-            (db.select as any) = mockSelect;
-            (db.insert as any) = mockInsert;
-            (db.update as any) = mockUpdate;
+            vi.mocked(db.select).mockImplementation(mockSelect);
+            vi.mocked(db.insert).mockImplementation(mockInsert);
+            vi.mocked(db.update).mockImplementation(mockUpdate);
 
             const googleUserInfo = {
                 email: "newuser@example.com",
@@ -199,7 +199,7 @@ describe("OAuthUserProvisioningService", () => {
                 }),
             });
 
-            (db.select as any) = mockSelect;
+            vi.mocked(db.select).mockImplementation(mockSelect);
 
             const result = await OAuthUserProvisioningService.findByOAuthId(
                 "google-123"
@@ -217,7 +217,7 @@ describe("OAuthUserProvisioningService", () => {
                 }),
             });
 
-            (db.select as any) = mockSelect;
+            vi.mocked(db.select).mockImplementation(mockSelect);
 
             const result = await OAuthUserProvisioningService.findByOAuthId(
                 "nonexistent"
@@ -244,7 +244,7 @@ describe("OAuthUserProvisioningService", () => {
                 }),
             });
 
-            (db.update as any) = mockUpdate;
+            vi.mocked(db.update).mockImplementation(mockUpdate);
 
             const result = await OAuthUserProvisioningService.updateOAuthInfo(
                 "user-123",

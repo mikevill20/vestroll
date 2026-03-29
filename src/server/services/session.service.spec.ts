@@ -36,7 +36,7 @@ describe("SessionService", () => {
                 lastUsedAt: new Date(),
             };
 
-            (bcrypt.hash as any) = vi.fn().mockResolvedValue("hashed_token");
+            vi.mocked(bcrypt.hash).mockResolvedValue("hashed_token" as never);
 
             const mockInsert = vi.fn().mockReturnValue({
                 values: vi.fn().mockReturnValue({
@@ -44,7 +44,7 @@ describe("SessionService", () => {
                 }),
             });
 
-            (db.insert as any) = mockInsert;
+            vi.mocked(db.insert).mockImplementation(mockInsert);
 
             const result = await SessionService.createSession(
                 "user-123",
@@ -68,7 +68,7 @@ describe("SessionService", () => {
                 lastUsedAt: new Date(),
             };
 
-            (bcrypt.compare as any) = vi.fn().mockResolvedValue(true);
+            vi.mocked(bcrypt.compare).mockResolvedValue(true as never);
 
             const mockSelect = vi.fn().mockReturnValue({
                 from: vi.fn().mockReturnValue({
@@ -82,8 +82,8 @@ describe("SessionService", () => {
                 }),
             });
 
-            (db.select as any) = mockSelect;
-            (db.update as any) = mockUpdate;
+            vi.mocked(db.select).mockImplementation(mockSelect);
+            vi.mocked(db.update).mockImplementation(mockUpdate);
 
             const result = await SessionService.validateSession(
                 "refresh_token_123",
@@ -106,7 +106,7 @@ describe("SessionService", () => {
                 expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
             };
 
-            (bcrypt.compare as any) = vi.fn().mockResolvedValue(false);
+            vi.mocked(bcrypt.compare).mockResolvedValue(false as never);
 
             const mockSelect = vi.fn().mockReturnValue({
                 from: vi.fn().mockReturnValue({
@@ -114,7 +114,7 @@ describe("SessionService", () => {
                 }),
             });
 
-            (db.select as any) = mockSelect;
+            vi.mocked(db.select).mockImplementation(mockSelect);
 
             const result = await SessionService.validateSession(
                 "wrong_token",
@@ -132,7 +132,7 @@ describe("SessionService", () => {
                 expiresAt: new Date(Date.now() - 1000),
             };
 
-            (bcrypt.compare as any) = vi.fn().mockResolvedValue(true);
+            vi.mocked(bcrypt.compare).mockResolvedValue(true as never);
 
             const mockSelect = vi.fn().mockReturnValue({
                 from: vi.fn().mockReturnValue({
@@ -144,8 +144,8 @@ describe("SessionService", () => {
                 where: vi.fn().mockResolvedValue(undefined),
             });
 
-            (db.select as any) = mockSelect;
-            (db.delete as any) = mockDelete;
+            vi.mocked(db.select).mockImplementation(mockSelect);
+            vi.mocked(db.delete).mockImplementation(mockDelete);
 
             const result = await SessionService.validateSession(
                 "refresh_token_123",
@@ -163,7 +163,7 @@ describe("SessionService", () => {
                 }),
             });
 
-            (db.select as any) = mockSelect;
+            vi.mocked(db.select).mockImplementation(mockSelect);
 
             const result = await SessionService.validateSession(
                 "refresh_token_123",
@@ -180,7 +180,7 @@ describe("SessionService", () => {
                 where: vi.fn().mockResolvedValue(undefined),
             });
 
-            (db.delete as any) = mockDelete;
+            vi.mocked(db.delete).mockImplementation(mockDelete);
 
             await SessionService.deleteSession("session-123");
 
@@ -194,7 +194,7 @@ describe("SessionService", () => {
                 where: vi.fn().mockResolvedValue(undefined),
             });
 
-            (db.delete as any) = mockDelete;
+            vi.mocked(db.delete).mockImplementation(mockDelete);
 
             await SessionService.revokeAllSessions("user-123");
 
@@ -208,7 +208,7 @@ describe("SessionService", () => {
                 where: vi.fn().mockResolvedValue(undefined),
             });
 
-            (db.delete as any) = mockDelete;
+            vi.mocked(db.delete).mockImplementation(mockDelete);
 
             await SessionService.cleanupExpiredSessions();
 

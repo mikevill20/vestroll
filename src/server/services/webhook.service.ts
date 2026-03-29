@@ -12,7 +12,7 @@ export class WebhookService {
     return hash === signature;
   }
 
-  static async logWebhookPayload(provider: string, payload: any) {
+  static async logWebhookPayload(provider: string, payload: unknown) {
     // TODO: Replace with DB insert when webhook_audit_logs table is available
     console.log("Webhook Audit Log:", {
       provider,

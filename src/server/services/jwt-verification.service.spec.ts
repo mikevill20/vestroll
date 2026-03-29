@@ -5,7 +5,7 @@ import { InvalidTokenSignatureError, ExpiredTokenError, InvalidTokenFormatError 
 
 describe("JWTVerificationService", () => {
     let publicKey: string;
-    let privateKey: any;
+    let privateKey: Awaited<ReturnType<typeof jose.generateKeyPair>>["privateKey"];
 
     beforeEach(async () => {
         const { publicKey: pub, privateKey: priv } = await jose.generateKeyPair("RS256");
