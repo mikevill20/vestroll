@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import ModalWelcomeOnboard from "@/components/shared/modal-welcome-onboard";
 import Stepper from "@/components/features/auth/Stepper";
-import { AuthService } from "@/lib/api/auth";
+import { AuthService } from "@/lib/api/v1/auth";
 
 interface FormData {
   companyName: string;
@@ -385,3 +385,5 @@ const BusinessRegistrationForm: React.FC = () => {
 };
 
 export default BusinessRegistrationForm;
+
+

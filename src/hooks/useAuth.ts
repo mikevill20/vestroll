@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AuthService } from "@/lib/api/auth";
+import { AuthService } from "@/lib/api/v1/auth";
 
 interface UseAuthReturn {
   login: (email: string, password: string) => Promise<void>;
@@ -108,3 +108,5 @@ export const useAuth = (): UseAuthReturn => {
     clearError,
   };
 };
+
+

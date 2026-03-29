@@ -32,7 +32,7 @@ interface CompleteRegistrationData {
 
 export class AuthService {
   static async login(credentials: LoginCredentials) {
-    const response = await fetch("/api/auth/login", {
+    const response = await fetch("/api/v1/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(credentials),
@@ -46,7 +46,7 @@ export class AuthService {
     return response.json();
   }
   static async register(credentials: RegisterData) {
-    const response = await fetch("/api/auth/register", {
+    const response = await fetch("/api/v1/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(credentials),
@@ -60,7 +60,7 @@ export class AuthService {
     return response.json();
   }
   static async forgotPassword(data: ForgotPasswordData) {
-    const response = await fetch("/api/auth/forgot-password", {
+    const response = await fetch("/api/v1/auth/forgot-password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -80,7 +80,7 @@ export class AuthService {
   }
 
   static async resetPassword(data: ResetPasswordData) {
-    const response = await fetch("/api/auth/reset-password", {
+    const response = await fetch("/api/v1/auth/reset-password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -100,7 +100,7 @@ export class AuthService {
   }
 
   static async completeRegistration(data: CompleteRegistrationData) {
-    const response = await fetch("/api/auth/complete-registration", {
+    const response = await fetch("/api/v1/auth/complete-registration", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -114,3 +114,5 @@ export class AuthService {
     return response.json();
   }
 }
+
+

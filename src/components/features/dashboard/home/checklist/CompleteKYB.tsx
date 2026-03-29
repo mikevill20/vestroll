@@ -76,7 +76,7 @@ export default function CompleteKYBPage() {
         submitData.append("formC02C07", formData.formC02C07);
       }
 
-      const response = await fetch("/api/kyb/submit", {
+      const response = await fetch("/api/v1/kyb/submit", {
         method: "POST",
         body: submitData,
       });
@@ -217,3 +217,5 @@ export default function CompleteKYBPage() {
     </motion.div>
   );
 }
+
+

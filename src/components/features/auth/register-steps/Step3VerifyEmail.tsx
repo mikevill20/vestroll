@@ -16,7 +16,7 @@ export default function Step3VerifyEmail({
 }: Step3Props) {
   const handleVerify = async (otp: string) => {
     try {
-      const response = await fetch("/api/auth/verify-email", {
+      const response = await fetch("/api/v1/auth/verify-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp }),
@@ -53,3 +53,5 @@ export default function Step3VerifyEmail({
     </div>
   );
 }
+
+

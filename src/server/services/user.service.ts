@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db, users, userStatusEnum } from "../db";
+import { AuditLogService } from "./audit-log.service";
 
 export type UserStatus = (typeof userStatusEnum.enumValues)[number];
 
@@ -83,6 +84,11 @@ export class UserService {
     const oldUser = await this.findById(userId);
     if (!oldUser) return null;
 
+    // Validate avatar URL if provided
+    if (data.avatarUrl !== undefined && data.avatarUrl !== null) {
+      validateAvatarUrl(data.avatarUrl);
+    }
+
     const [updatedUser] = await db
       .update(users)
       .set({ ...data, updatedAt: new Date() })
@@ -109,33 +115,6 @@ export class UserService {
         });
       }
     }
-
-    return updatedUser || null;
-  }
-
-  static async update(
-    userId: string,
-    data: {
-      firstName?: string;
-      lastName?: string;
-      avatarUrl?: string;
-      role?: string;
-      organizationName?: string;
-    },
-  ) {
-    // Validate avatar URL if provided
-    if (data.avatarUrl !== undefined) {
-      validateAvatarUrl(data.avatarUrl);
-    }
-
-    const [updatedUser] = await db
-      .update(users)
-      .set({
-        ...data,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, userId))
-      .returning();
 
     return updatedUser || null;
   }

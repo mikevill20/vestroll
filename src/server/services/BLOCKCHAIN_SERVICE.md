@@ -2,8 +2,8 @@
 
 A backend service that wraps the **Stellar Horizon API** and **Soroban RPC**, providing reusable helpers for account management, XDR generation, transaction simulation, and submission.
 
-**Location:** `src/api/services/blockchain.service.ts`  
-**Tests:** `src/api/services/blockchain.service.spec.ts`  
+**Location:** `src/api/v1/services/blockchain.service.ts`  
+**Tests:** `src/api/v1/services/blockchain.service.spec.ts`  
 **Dependency:** `@stellar/stellar-sdk ^14.5.0`
 
 ---
@@ -348,7 +348,7 @@ Tests are located in `blockchain.service.spec.ts` and use **Vitest** with mocked
 
 ```bash
 # Run only blockchain service tests
-pnpm test -- src/api/services/blockchain.service.spec.ts
+pnpm test -- src/api/v1/services/blockchain.service.spec.ts
 
 # Run all tests
 pnpm test
