@@ -46,6 +46,7 @@ export async function middleware(req: NextRequest) {
   }
 
   const response = NextResponse.next();
+  response.headers.set("Vary", "Accept-Encoding");
 
   // For non-OPTIONS requests, add the Access-Control-Allow-Origin header if the origin is allowed.
   if (origin && allowedOrigins.includes(origin)) {
