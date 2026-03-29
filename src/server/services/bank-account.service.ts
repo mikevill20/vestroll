@@ -1,6 +1,7 @@
 import { db } from "../db";
 import { employees } from "../db/schema";
 import { eq } from "drizzle-orm";
+import { Logger } from "./logger.service";
 
 export interface BankValidationResult {
   isValid: boolean;
@@ -95,7 +96,7 @@ class BankAccountService {
 
       return result;
     } catch (error) {
-      console.error("[Bank Validation Error]", error);
+      Logger.error("[Bank Validation Error]", { error: String(error) });
       return {
         isValid: false,
         error: "Bank validation service unavailable",
@@ -115,7 +116,7 @@ class BankAccountService {
         })
         .where(eq(employees.id, employeeId));
     } catch (error) {
-      console.error("[Update Employee Account Error]", error);
+      Logger.error("[Update Employee Account Error]", { error: String(error) });
       throw new Error("Failed to update employee account details");
     }
   }
@@ -188,7 +189,7 @@ class BankAccountService {
         },
       };
     } catch (error) {
-      console.error("[Verify Employee Account Error]", error);
+      Logger.error("[Verify Employee Account Error]", { error: String(error) });
       return {
         isValid: false,
         isVerified: false,
@@ -223,7 +224,7 @@ class BankAccountService {
 
       return employee[0] || null;
     } catch (error) {
-      console.error("[Get Employee Account Error]", error);
+      Logger.error("[Get Employee Account Error]", { error: String(error) });
       throw new Error("Failed to retrieve employee account details");
     }
   }
