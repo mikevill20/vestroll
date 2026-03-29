@@ -42,6 +42,10 @@ import { AttentionService } from "@/server/services/attention.service";
  *                       type: integer
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  *       403:
  *         description: User not associated with any organization
  */

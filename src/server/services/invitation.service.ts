@@ -3,9 +3,14 @@ import { organizationInvitations, users, organizations } from "../db/schema";
 import { eq, and, desc, lt } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { addDays, isPast } from "date-fns";
+import type { SQL } from "drizzle-orm";
 import { EmailService } from "./email.service";
 
-export type InvitationRole = "admin" | "hr_manager" | "payroll_manager" | "employee";
+export type InvitationRole =
+  | "admin"
+  | "hr_manager"
+  | "payroll_manager"
+  | "employee";
 export type InvitationStatus = "pending" | "accepted" | "declined" | "expired";
 
 export interface CreateInvitationData {
@@ -43,15 +48,19 @@ export interface InvitationWithDetails {
 }
 
 class InvitationService {
-  async createInvitation(data: CreateInvitationData): Promise<InvitationWithDetails> {
+  async createInvitation(
+    data: CreateInvitationData,
+  ): Promise<InvitationWithDetails> {
     // Check if user already exists in organization
     const existingUser = await db
       .select()
       .from(users)
-      .where(and(
-        eq(users.email, data.email),
-        eq(users.organizationId, data.organizationId)
-      ))
+      .where(
+        and(
+          eq(users.email, data.email),
+          eq(users.organizationId, data.organizationId),
+        ),
+      )
       .limit(1);
 
     if (existingUser.length > 0) {
@@ -62,11 +71,13 @@ class InvitationService {
     const existingInvitation = await db
       .select()
       .from(organizationInvitations)
-      .where(and(
-        eq(organizationInvitations.email, data.email),
-        eq(organizationInvitations.organizationId, data.organizationId),
-        eq(organizationInvitations.status, "pending")
-      ))
+      .where(
+        and(
+          eq(organizationInvitations.email, data.email),
+          eq(organizationInvitations.organizationId, data.organizationId),
+          eq(organizationInvitations.status, "pending"),
+        ),
+      )
       .limit(1);
 
     if (existingInvitation.length > 0) {
@@ -138,7 +149,10 @@ class InvitationService {
         },
       })
       .from(organizationInvitations)
-      .innerJoin(organizations, eq(organizationInvitations.organizationId, organizations.id))
+      .innerJoin(
+        organizations,
+        eq(organizationInvitations.organizationId, organizations.id),
+      )
       .innerJoin(users, eq(organizationInvitations.invitedByUserId, users.id))
       .where(eq(organizationInvitations.id, id))
       .limit(1);
@@ -146,7 +160,9 @@ class InvitationService {
     return result[0] || null;
   }
 
-  async getInvitationByToken(token: string): Promise<InvitationWithDetails | null> {
+  async getInvitationByToken(
+    token: string,
+  ): Promise<InvitationWithDetails | null> {
     const result = await db
       .select({
         id: organizationInvitations.id,
@@ -174,7 +190,10 @@ class InvitationService {
         },
       })
       .from(organizationInvitations)
-      .innerJoin(organizations, eq(organizationInvitations.organizationId, organizations.id))
+      .innerJoin(
+        organizations,
+        eq(organizationInvitations.organizationId, organizations.id),
+      )
       .innerJoin(users, eq(organizationInvitations.invitedByUserId, users.id))
       .where(eq(organizationInvitations.token, token))
       .limit(1);
@@ -189,17 +208,19 @@ class InvitationService {
       role?: InvitationRole;
       page?: number;
       limit?: number;
-    } = {}
+    } = {},
   ): Promise<{ invitations: InvitationWithDetails[]; total: number }> {
     const { status, role, page = 1, limit = 20 } = options;
     const offset = (page - 1) * limit;
 
-    const whereConditions = [eq(organizationInvitations.organizationId, organizationId)];
-    
+    const whereConditions: SQL[] = [
+      eq(organizationInvitations.organizationId, organizationId),
+    ];
+
     if (status) {
       whereConditions.push(eq(organizationInvitations.status, status));
     }
-    
+
     if (role) {
       whereConditions.push(eq(organizationInvitations.role, role));
     }
@@ -231,7 +252,10 @@ class InvitationService {
         },
       })
       .from(organizationInvitations)
-      .innerJoin(organizations, eq(organizationInvitations.organizationId, organizations.id))
+      .innerJoin(
+        organizations,
+        eq(organizationInvitations.organizationId, organizations.id),
+      )
       .innerJoin(users, eq(organizationInvitations.invitedByUserId, users.id))
       .where(and(...whereConditions))
       .orderBy(desc(organizationInvitations.createdAt))
@@ -252,7 +276,7 @@ class InvitationService {
 
   async acceptInvitation(token: string, userId: string): Promise<void> {
     const invitation = await this.getInvitationByToken(token);
-    
+
     if (!invitation) {
       throw new Error("Invalid invitation token");
     }
@@ -282,7 +306,7 @@ class InvitationService {
 
   async declineInvitation(token: string, reason?: string): Promise<void> {
     const invitation = await this.getInvitationByToken(token);
-    
+
     if (!invitation) {
       throw new Error("Invalid invitation token");
     }
@@ -303,7 +327,7 @@ class InvitationService {
 
   async resendInvitation(invitationId: string): Promise<void> {
     const invitation = await this.getInvitationById(invitationId);
-    
+
     if (!invitation) {
       throw new Error("Invitation not found");
     }
@@ -338,7 +362,7 @@ class InvitationService {
 
   async deleteInvitation(invitationId: string): Promise<void> {
     const invitation = await this.getInvitationById(invitationId);
-    
+
     if (!invitation) {
       throw new Error("Invitation not found");
     }
@@ -352,8 +376,11 @@ class InvitationService {
       .where(eq(organizationInvitations.id, invitationId));
   }
 
-  async updateInvitationStatus(invitationId: string, status: InvitationStatus): Promise<void> {
-    const updateData: any = {
+  async updateInvitationStatus(
+    invitationId: string,
+    status: InvitationStatus,
+  ): Promise<void> {
+    const updateData: Partial<typeof organizationInvitations.$inferInsert> = {
       status,
       updatedAt: new Date(),
     };
@@ -377,10 +404,12 @@ class InvitationService {
         status: "expired",
         updatedAt: new Date(),
       })
-      .where(and(
-        eq(organizationInvitations.status, "pending"),
-        lt(organizationInvitations.expiresAt, new Date())
-      ));
+      .where(
+        and(
+          eq(organizationInvitations.status, "pending"),
+          lt(organizationInvitations.expiresAt, new Date()),
+        ),
+      );
   }
 }
 

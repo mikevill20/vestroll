@@ -57,6 +57,34 @@ const getExplorerUrl = (network: string, hash?: string): string => {
   return `https://explorer.example.com/tx/${cleanHash}`;
 };
 
+/**
+ * @swagger
+ * /api/finance/transactions/{id}:
+ *   get:
+ *     summary: Get transaction details
+ *     description: Retrieve detailed information about a specific transaction, including audit trail and blockchain info.
+ *     tags: [Finance]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Transaction ID
+ *     responses:
+ *       200:
+ *         description: Transaction details retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
+ *       404:
+ *         description: Transaction not found
+ */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },

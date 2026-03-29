@@ -18,6 +18,10 @@ import { FinanceWalletService } from "@/server/services/finance-wallet.service";
  *         description: Wallet funding details retrieved successfully
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  *   post:
  *     summary: Ensure organization wallet funding details
  *     description: Generate and persist a virtual account for the authenticated organization when one does not exist.
@@ -29,6 +33,10 @@ import { FinanceWalletService } from "@/server/services/finance-wallet.service";
  *         description: Wallet funding details generated successfully
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  */
 export async function GET(req: NextRequest) {
   try {

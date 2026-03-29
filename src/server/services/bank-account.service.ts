@@ -27,6 +27,8 @@ export interface AccountVerificationResult {
   error?: string;
 }
 
+type EmployeeAccountUpdate = Partial<typeof employees.$inferInsert>;
+
 class BankAccountService {
   // Mock bank validation API - in production, this would integrate with real banking APIs
   async validateBankAccount(accountData: {
@@ -106,7 +108,10 @@ class BankAccountService {
   }
 
   // Update employee account details
-  async updateEmployeeAccount(employeeId: string, accountData: any): Promise<void> {
+  async updateEmployeeAccount(
+    employeeId: string,
+    accountData: EmployeeAccountUpdate,
+  ): Promise<void> {
     try {
       await db
         .update(employees)

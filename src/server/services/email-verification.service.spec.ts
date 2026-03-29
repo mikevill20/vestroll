@@ -4,6 +4,7 @@ import { UserService } from "./user.service";
 import { OTPService } from "./otp.service";
 import { db, emailVerifications, users } from "../db";
 import { NotFoundError, BadRequestError, ForbiddenError } from "../utils/errors";
+type UserLookupResult = Awaited<ReturnType<typeof UserService.findByEmail>>;
 
 vi.mock("./user.service");
 vi.mock("./otp.service");
@@ -48,7 +49,7 @@ describe("EmailVerificationService", () => {
 
   describe("verifyEmail", () => {
     it("should throw NotFoundError if user does not exist", async () => {
-      vi.mocked(UserService.findByEmail).mockResolvedValue(null as any);
+      vi.mocked(UserService.findByEmail).mockResolvedValue(null);
       const promise = EmailVerificationService.verifyEmail("nonexistent@example.com", "123456");
       await expect(promise).rejects.toThrowError(NotFoundError);
       await expect(promise).rejects.toThrowError("User not found");
@@ -56,7 +57,9 @@ describe("EmailVerificationService", () => {
 
     it("should throw BadRequestError if user is already verified", async () => {
       const activeUser = { ...mockUser, status: "active" as const };
-      vi.mocked(UserService.findByEmail).mockResolvedValue(activeUser as any);
+      vi.mocked(UserService.findByEmail).mockResolvedValue(
+        activeUser as UserLookupResult,
+      );
 
       await expect(
         EmailVerificationService.verifyEmail("test@example.com", "123456")
@@ -67,7 +70,9 @@ describe("EmailVerificationService", () => {
     });
 
     it("should throw NotFoundError if no verification record exists", async () => {
-      vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as any);
+      vi.mocked(UserService.findByEmail).mockResolvedValue(
+        mockUser as UserLookupResult,
+      );
       
       const mockSelect = vi.fn().mockReturnValue({
         from: vi.fn().mockReturnValue({
@@ -89,7 +94,9 @@ describe("EmailVerificationService", () => {
     });
 
     it("should throw ForbiddenError if max attempts exceeded", async () => {
-      vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as any);
+      vi.mocked(UserService.findByEmail).mockResolvedValue(
+        mockUser as UserLookupResult,
+      );
       
       const lockedRecord = { ...mockVerificationRecord, attempts: 5 };
       const mockSelect = vi.fn().mockReturnValue({
@@ -112,7 +119,9 @@ describe("EmailVerificationService", () => {
     });
 
     it("should throw BadRequestError if OTP is expired", async () => {
-      vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as any);
+      vi.mocked(UserService.findByEmail).mockResolvedValue(
+        mockUser as UserLookupResult,
+      );
       
       const expiredRecord = { 
         ...mockVerificationRecord, 
@@ -138,7 +147,9 @@ describe("EmailVerificationService", () => {
     });
 
     it("should increment attempts and throw BadRequestError for invalid OTP", async () => {
-      vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as any);
+      vi.mocked(UserService.findByEmail).mockResolvedValue(
+        mockUser as UserLookupResult,
+      );
       vi.mocked(OTPService.verifyOTP).mockResolvedValue(false);
       
       const mockSelect = vi.fn().mockReturnValue({
@@ -170,7 +181,9 @@ describe("EmailVerificationService", () => {
     });
 
     it("should throw ForbiddenError on 5th failed attempt", async () => {
-      vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as any);
+      vi.mocked(UserService.findByEmail).mockResolvedValue(
+        mockUser as UserLookupResult,
+      );
       vi.mocked(OTPService.verifyOTP).mockResolvedValue(false);
       
       const recordWith4Attempts = { ...mockVerificationRecord, attempts: 4 };
@@ -201,7 +214,9 @@ describe("EmailVerificationService", () => {
     });
 
     it("should successfully verify email with valid OTP", async () => {
-      vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as any);
+      vi.mocked(UserService.findByEmail).mockResolvedValue(
+        mockUser as UserLookupResult,
+      );
       vi.mocked(OTPService.verifyOTP).mockResolvedValue(true);
       
       const mockSelect = vi.fn().mockReturnValue({
@@ -243,7 +258,9 @@ describe("EmailVerificationService", () => {
     });
 
     it("should call OTPService.verifyOTP with correct parameters", async () => {
-      vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as any);
+      vi.mocked(UserService.findByEmail).mockResolvedValue(
+        mockUser as UserLookupResult,
+      );
       vi.mocked(OTPService.verifyOTP).mockResolvedValue(true);
       
       const mockSelect = vi.fn().mockReturnValue({
@@ -277,7 +294,9 @@ describe("EmailVerificationService", () => {
     });
 
     it("should show singular 'attempt' when 1 attempt remaining", async () => {
-      vi.mocked(UserService.findByEmail).mockResolvedValue(mockUser as any);
+      vi.mocked(UserService.findByEmail).mockResolvedValue(
+        mockUser as UserLookupResult,
+      );
       vi.mocked(OTPService.verifyOTP).mockResolvedValue(false);
       
       const recordWith3Attempts = { ...mockVerificationRecord, attempts: 3 };

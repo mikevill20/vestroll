@@ -95,6 +95,10 @@ import { TeamService } from "@/server/services/team.service";
  *         description: Invalid query parameters
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
  *       403:
  *         description: User not associated with an organization
  */

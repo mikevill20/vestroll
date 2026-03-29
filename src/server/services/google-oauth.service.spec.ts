@@ -19,9 +19,13 @@ vi.mock("google-auth-library", () => {
 });
 
 describe("GoogleOAuthService", () => {
+  const mockedGoogleOAuthService = GoogleOAuthService as unknown as {
+    client?: OAuth2Client;
+  };
+
   beforeEach(() => {
     process.env.GOOGLE_CLIENT_ID = "test-client-id.apps.googleusercontent.com";
-    (GoogleOAuthService as any).client = undefined;
+    mockedGoogleOAuthService.client = undefined;
     vi.clearAllMocks();
   });
 
@@ -41,7 +45,7 @@ describe("GoogleOAuthService", () => {
         getPayload: () => mockPayload,
       });
 
-      (OAuth2Client as any).mockImplementation(function () {
+      vi.mocked(OAuth2Client).mockImplementation(function () {
         return {
           verifyIdToken: mockVerifyIdToken,
         };
@@ -75,7 +79,7 @@ describe("GoogleOAuthService", () => {
         getPayload: () => mockPayload,
       });
 
-      (OAuth2Client as any).mockImplementation(function () {
+      vi.mocked(OAuth2Client).mockImplementation(function () {
         return {
           verifyIdToken: mockVerifyIdToken,
         };
@@ -92,7 +96,7 @@ describe("GoogleOAuthService", () => {
         getPayload: () => null,
       });
 
-      (OAuth2Client as any).mockImplementation(function () {
+      vi.mocked(OAuth2Client).mockImplementation(function () {
         return {
           verifyIdToken: mockVerifyIdToken,
         };
@@ -116,7 +120,7 @@ describe("GoogleOAuthService", () => {
         getPayload: () => mockPayload,
       });
 
-      (OAuth2Client as any).mockImplementation(function () {
+      vi.mocked(OAuth2Client).mockImplementation(function () {
         return {
           verifyIdToken: mockVerifyIdToken,
         };
@@ -140,7 +144,7 @@ describe("GoogleOAuthService", () => {
         getPayload: () => mockPayload,
       });
 
-      (OAuth2Client as any).mockImplementation(function () {
+      vi.mocked(OAuth2Client).mockImplementation(function () {
         return {
           verifyIdToken: mockVerifyIdToken,
         };
@@ -163,7 +167,7 @@ describe("GoogleOAuthService", () => {
         getPayload: () => mockPayload,
       });
 
-      (OAuth2Client as any).mockImplementation(function () {
+      vi.mocked(OAuth2Client).mockImplementation(function () {
         return {
           verifyIdToken: mockVerifyIdToken,
         };
@@ -179,7 +183,7 @@ describe("GoogleOAuthService", () => {
         .fn()
         .mockRejectedValue(new Error("Token used too late"));
 
-      (OAuth2Client as any).mockImplementation(function () {
+      vi.mocked(OAuth2Client).mockImplementation(function () {
         return {
           verifyIdToken: mockVerifyIdToken,
         };
@@ -195,7 +199,7 @@ describe("GoogleOAuthService", () => {
         .fn()
         .mockRejectedValue(new Error("Invalid signature"));
 
-      (OAuth2Client as any).mockImplementation(function () {
+      vi.mocked(OAuth2Client).mockImplementation(function () {
         return {
           verifyIdToken: mockVerifyIdToken,
         };
@@ -218,7 +222,7 @@ describe("GoogleOAuthService", () => {
         getPayload: () => mockPayload,
       });
 
-      (OAuth2Client as any).mockImplementation(function () {
+      vi.mocked(OAuth2Client).mockImplementation(function () {
         return {
           verifyIdToken: mockVerifyIdToken,
         };

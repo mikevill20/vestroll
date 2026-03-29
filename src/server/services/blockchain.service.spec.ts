@@ -201,7 +201,7 @@ describe("BlockchainService", () => {
   });
 
   describe("getAccountBalances", () => {
-    it("should return parsed balances from Horizon", async () => {
+    it("should return parsed balances from Horizon (native and alphanum4)", async () => {
       const horizonResponse = {
         balances: [
           {
@@ -211,8 +211,7 @@ describe("BlockchainService", () => {
           {
             asset_type: "credit_alphanum4",
             asset_code: "USDC",
-            asset_issuer:
-              "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
+            asset_issuer: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
             balance: "50.0000000",
           },
         ],
@@ -236,6 +235,61 @@ describe("BlockchainService", () => {
         balance: "50.0000000",
         assetType: "credit_alphanum4",
       });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining(`/accounts/${TEST_PUBLIC_KEY}`),
+      );
+    });
+
+    it("should handle credit_alphanum12 assets mapping correctly", async () => {
+      const longAssetCode = "SUPERLONGTOKEN";
+      const horizonResponse = {
+        balances: [
+          {
+            asset_type: "credit_alphanum12",
+            asset_code: longAssetCode,
+            asset_issuer: "GCX6O5C7GBIIDU5G4W6H6X2F4L5O5X3XU4L5O5X3XU4L5O5X3XU",
+            balance: "1000.0000000",
+          },
+        ],
+      };
+
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(horizonResponse),
+      });
+
+      const balances = await service.getAccountBalances(TEST_PUBLIC_KEY);
+
+      expect(balances).toHaveLength(1);
+      expect(balances[0]).toEqual({
+        asset: `${longAssetCode}:GCX6O5C7GBIIDU5G4W6H6X2F4L5O5X3XU4L5O5X3XU4L5O5X3XU`,
+        balance: "1000.0000000",
+        assetType: "credit_alphanum12",
+      });
+    });
+
+    it("should map liquidity pool shares correctly as assetType", async () => {
+      const horizonResponse = {
+        balances: [
+          {
+            asset_type: "liquidity_pool_shares",
+            liquidity_pool_id: "abcdef1234567890",
+            balance: "5.5000000",
+          },
+        ],
+      };
+
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(horizonResponse),
+      });
+
+      const balances = await service.getAccountBalances(TEST_PUBLIC_KEY);
+
+      expect(balances).toHaveLength(1);
+      expect(balances[0].assetType).toBe("liquidity_pool_shares");
+      expect(balances[0].balance).toBe("5.5000000");
     });
 
     it("should throw when Horizon returns a non-OK response", async () => {
@@ -460,7 +514,7 @@ describe("BlockchainService", () => {
       });
 
       const tx = TransactionBuilder.fromXDR(result.xdr, Networks.TESTNET);
-      expect("operations" in tx && (tx as any).operations.length).toBe(2);
+      expect("operations" in tx ? tx.operations.length : 0).toBe(2);
     });
 
     it("should respect custom fee and timeout", async () => {
@@ -815,10 +869,10 @@ describe("BlockchainService", () => {
       });
       expect(mockRpcServer.getLatestLedger).toHaveBeenCalledTimes(1);
       expect(mockFetch).toHaveBeenCalledWith(
-        "https://horizon-testnet.stellar.org/ledgers?order=desc&limit=1",
+        expect.stringContaining("/ledgers?order=desc&limit=1"),
       );
       expect(mockFetch).toHaveBeenCalledWith(
-        "https://horizon-testnet.stellar.org/ledgers/1234",
+        expect.stringContaining("/ledgers/1234"),
       );
     });
 

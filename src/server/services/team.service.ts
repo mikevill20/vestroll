@@ -1,5 +1,6 @@
 import { db, users, organizations, milestones } from "../db";
 import { eq, sql } from "drizzle-orm";
+import { BadRequestError, ConflictError, NotFoundError } from "../utils/errors";
 
 export class TeamService {
   static async addEmployee(data: { email: string; organizationId?: string }) {
@@ -12,9 +13,7 @@ export class TeamService {
       .limit(1);
 
     if (existingUser) {
-      const error = new Error("Email already registered");
-      (error as any).status = 409;
-      throw error;
+      throw new ConflictError("Email already registered");
     }
 
     const [newUser] = await db
@@ -41,11 +40,9 @@ export class TeamService {
     data: { status: "approved" | "rejected" | "in_progress"; reason?: string },
   ) {
     if (data.status === "rejected" && !data.reason) {
-      const error = new Error(
+      throw new BadRequestError(
         "A reason is required when rejecting a milestone",
       );
-      (error as any).status = 400;
-      throw error;
     }
 
     const [milestone] = await db
@@ -55,9 +52,7 @@ export class TeamService {
       .limit(1);
 
     if (!milestone) {
-      const error = new Error("Milestone not found");
-      (error as any).status = 404;
-      throw error;
+      throw new NotFoundError("Milestone not found");
     }
 
     const [updated] = await db

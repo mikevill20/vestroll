@@ -40,6 +40,7 @@ const eslintConfig = [
   {
     files: ["src/server/services/**/*.ts"],
     rules: {
+      "@typescript-eslint/no-explicit-any": "error",
       "no-console": "error",
     },
   },
