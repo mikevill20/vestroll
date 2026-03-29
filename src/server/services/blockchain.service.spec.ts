@@ -7,6 +7,7 @@ import {
   Operation,
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
+import { TransactionXdr } from "./blockchain.service";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BlockchainService } from "./blockchain.service";
 
@@ -45,6 +46,17 @@ vi.mock("@stellar/stellar-sdk/rpc", () => {
     },
   };
 });
+
+vi.mock("../db", () => ({
+  db: {
+    insert: vi.fn().mockReturnThis(),
+    values: vi.fn().mockResolvedValue({}),
+  },
+}));
+
+vi.mock("@/server/db/schema", () => ({
+  signerAudits: {},
+}));
 
 const mockFetch = vi.fn();
 vi.stubGlobal("fetch", mockFetch);
@@ -499,9 +511,36 @@ describe("BlockchainService", () => {
         }),
       ).rejects.toThrow(/Invalid inner transaction XDR/);
     });
+
+    it("should throw error when inner transaction network passphrase mismatches", async () => {
+      const mainnetInner: TransactionXdr = {
+        xdr: "AAAA...",
+        hash: "hash",
+        networkPassphrase: Networks.PUBLIC,
+      };
+
+      await expect(
+        service.buildFeeBumpXdr({
+          innerTxXdr: mainnetInner,
+          feeSourceSecret: TEST_SECRET,
+        }),
+      ).rejects.toThrow(/Cross-network transaction detected/);
+    });
   });
 
   describe("signTransaction", () => {
+    it("should throw error when network passphrase mismatches service configuration", async () => {
+      const mainnetInput: TransactionXdr = {
+        xdr: "AAAA...",
+        hash: "hash",
+        networkPassphrase: Networks.PUBLIC, // Service is configured for testnet in beforeEach
+      };
+
+      expect(() => service.signTransaction(mainnetInput, TEST_SECRET)).toThrow(
+        /Cross-network transaction detected/,
+      );
+    });
+
     it("should add a signature to an unsigned transaction", async () => {
       mockRpcServer.getAccount.mockResolvedValue(mockAccount(TEST_PUBLIC_KEY));
 
@@ -546,6 +585,18 @@ describe("BlockchainService", () => {
       expect(sim.transactionXdr).toBe(txXdr);
     });
 
+    it("should throw error when network passphrase mismatches", async () => {
+      const mainnetInput: TransactionXdr = {
+        xdr: "AAAA...",
+        hash: "hash",
+        networkPassphrase: Networks.PUBLIC,
+      };
+
+      await expect(service.simulateTransaction(mainnetInput)).rejects.toThrow(
+        /Cross-network transaction detected/,
+      );
+    });
+
     it("should throw when simulation returns an error", async () => {
       mockRpcServer.getAccount.mockResolvedValue(mockAccount(TEST_PUBLIC_KEY));
 
@@ -585,6 +636,18 @@ describe("BlockchainService", () => {
       const result = await service.prepareTransaction(txXdr);
       expect(result).toBe("prepared-xdr-string");
     });
+
+    it("should throw error when network passphrase mismatches", async () => {
+      const mainnetInput: TransactionXdr = {
+        xdr: "AAAA...",
+        hash: "hash",
+        networkPassphrase: Networks.PUBLIC,
+      };
+
+      await expect(service.prepareTransaction(mainnetInput)).rejects.toThrow(
+        /Cross-network transaction detected/,
+      );
+    });
   });
 
   describe("submitTransaction", () => {
@@ -620,6 +683,18 @@ describe("BlockchainService", () => {
       expect(result.status).toBe("SUCCESS");
       expect(result.ledger).toBe(100);
       expect(result.resultXdr).toBe("result-xdr-base64");
+    });
+
+    it("should throw error when network passphrase mismatches", async () => {
+      const mainnetInput: TransactionXdr = {
+        xdr: "AAAA...",
+        hash: "hash",
+        networkPassphrase: Networks.PUBLIC,
+      };
+
+      await expect(service.submitTransaction(mainnetInput)).rejects.toThrow(
+        /Cross-network transaction detected/,
+      );
     });
 
     it("should throw when sendTransaction is not PENDING", async () => {

@@ -1,7 +1,4 @@
-import {
-  EnvServiceDiscovery,
-  ServiceDiscovery,
-} from "@/server/utils/service-discovery";
+import { db } from "../db";
 import {
   Address,
   Asset,
@@ -19,15 +16,31 @@ import {
 } from "@stellar/stellar-sdk";
 import { Api, Server as RpcServer } from "@stellar/stellar-sdk/rpc";
 import { Logger } from "./logger.service";
-import { ServiceDiscovery, EnvServiceDiscovery } from "@/server/utils/service-discovery";
 import {
-  wrapBlockchainError,
-  AccountNotFoundError,
-  InsufficientFundsError,
+  EnvServiceDiscovery,
+  ServiceDiscovery,
+} from "@/server/utils/service-discovery";
+import { signerAudits } from "@/server/db/schema";
+import {
   SimulationFailedError,
   TransactionRejectedError,
-  BlockchainError,
+  wrapBlockchainError,
 } from "@/server/utils/errors/blockchain-error";
+
+export interface GetContractEventsParams {
+  contractId?: string;
+  topics?: string[][];
+  fromLedger?: number;
+  limit?: number;
+}
+
+export interface ContractEvent {
+  id: string;
+  ledger: number;
+  contractId: string;
+  topics: any[];
+  value: any;
+}
 
 type NetworkName = "testnet" | "mainnet" | "futurenet";
 
@@ -267,7 +280,18 @@ export class BlockchainService {
     };
   }
 
-  signTransaction(xdrEnvelope: string, signerSecret: string): string {
+  private validateNetwork(passphrase?: string): void {
+    if (passphrase && passphrase !== this.networkConfig.networkPassphrase) {
+      throw new Error(
+        `Cross-network transaction detected: envelope is for "${passphrase}" but service is configured for "${this.networkConfig.networkPassphrase}"`,
+      );
+    }
+  }
+
+  signTransaction(input: string | TransactionXdr, signerSecret: string): string {
+    const xdrEnvelope = typeof input === "string" ? input : input.xdr;
+    this.validateNetwork(typeof input === "string" ? undefined : input.networkPassphrase);
+
     const tx = TransactionBuilder.fromXDR(
       xdrEnvelope,
       this.networkConfig.networkPassphrase,
@@ -292,7 +316,10 @@ export class BlockchainService {
     return tx.toXDR();
   }
 
-  async simulateTransaction(txXdr: string): Promise<SimulationResult> {
+  async simulateTransaction(input: string | TransactionXdr): Promise<SimulationResult> {
+    const txXdr = typeof input === "string" ? input : input.xdr;
+    this.validateNetwork(typeof input === "string" ? undefined : input.networkPassphrase);
+
     const tx = TransactionBuilder.fromXDR(
       txXdr,
       this.networkConfig.networkPassphrase,
@@ -324,7 +351,10 @@ export class BlockchainService {
     };
   }
 
-  async prepareTransaction(txXdr: string): Promise<string> {
+  async prepareTransaction(input: string | TransactionXdr): Promise<string> {
+    const txXdr = typeof input === "string" ? input : input.xdr;
+    this.validateNetwork(typeof input === "string" ? undefined : input.networkPassphrase);
+
     const tx = TransactionBuilder.fromXDR(
       txXdr,
       this.networkConfig.networkPassphrase,
@@ -334,7 +364,10 @@ export class BlockchainService {
     return prepared.toXDR();
   }
 
-  async submitTransaction(signedXdr: string): Promise<SubmissionResult> {
+  async submitTransaction(input: string | TransactionXdr): Promise<SubmissionResult> {
+    const signedXdr = typeof input === "string" ? input : input.xdr;
+    this.validateNetwork(typeof input === "string" ? undefined : input.networkPassphrase);
+
     const tx = TransactionBuilder.fromXDR(
       signedXdr,
       this.networkConfig.networkPassphrase,
@@ -405,16 +438,19 @@ export class BlockchainService {
   }
 
   async buildFeeBumpXdr(params: {
-    innerTxXdr: string;
+    innerTxXdr: string | TransactionXdr;
     feeSourceSecret: string;
     baseFee?: number | string;
   }): Promise<TransactionXdr> {
     const feeSourceKeypair = Keypair.fromSecret(params.feeSourceSecret);
+    
+    const innerXdr = typeof params.innerTxXdr === "string" ? params.innerTxXdr : params.innerTxXdr.xdr;
+    this.validateNetwork(typeof params.innerTxXdr === "string" ? undefined : params.innerTxXdr.networkPassphrase);
 
     let innerTx: Transaction | FeeBumpTransaction;
     try {
       innerTx = TransactionBuilder.fromXDR(
-        params.innerTxXdr,
+        innerXdr,
         this.networkConfig.networkPassphrase,
       );
     } catch (error) {
