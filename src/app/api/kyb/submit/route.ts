@@ -160,7 +160,7 @@ export async function POST(req: NextRequest) {
 
     if (error instanceof ZodError) {
       const fieldErrors: Record<string, string> = {};
-      error.issues.forEach((issue) => {
+      error.issues.forEach((issue: any) => {
         if (issue.path[0]) {
           fieldErrors[issue.path[0].toString()] = issue.message;
         }

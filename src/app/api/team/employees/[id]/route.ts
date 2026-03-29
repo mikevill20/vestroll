@@ -97,7 +97,7 @@ export async function GET(
             status: contract.status,
           }
         : null,
-      history: paymentHistory.map((p) => ({
+      history: paymentHistory.map((p: any) => ({
         date: p.submittedAt,
         amount: p.totalAmount,
         rate: p.rate,
